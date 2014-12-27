@@ -1,0 +1,18 @@
+{
+  "extension_name": {
+    "message": "Subscription Feed for YouTube",
+    "description": "Extension name, the long variant (up to 45 characters)"
+  },
+  "extension_shortName": {
+    "message": "YouTube Feed",
+    "description": "Extension name, the short variant (up to 12 characters)"
+  },
+  "extension_description": {
+    "message": "Google Chrome extension for monitoring YouTube channels for new videos.",
+    "description": "Extension description"
+  },
+  "browserAction_title": {
+    "message": "Subscription Feed for YouTube",
+    "description": "Title of the browser action button"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "manifest_version": 2,
+  "name": "__MSG_extension_name__",
+  "short_name": "__MSG_extension_shortName__",
+  "version": "2.0.0",
+  "author": "Martin Jurča",
+
+  "default_locale": "en",
+  "description": "__MSG_extension_description__",
+  "icons": {
+    "16": "img/icon/icon-small-16.png",
+    "32": "img/icon/icon-big-32.png",
+    "48": "img/icon/icon-big-48.png",
+    "128": "img/icon/icon-big-128.png"
+  },
+
+  "browser_action": {
+    "default_icon": {
+      "19": "img/icon/icon-small-19.png",
+      "38": "img/icon/icon-big-38.png"
+    },
+    "default_title": "__MSG_browserAction_title__",
+    "default_popup": "ui/popup.html"
+  },
+
+  "options_page": "ui/options.html",
+  "options_ui": {
+    "page": "ui/options.html"
+  },
+
+  "permissions": [
+    "storage",
+    "tabs",
+    "unlimitedStorage"
+  ]
+}

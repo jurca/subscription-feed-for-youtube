@@ -1,0 +1,34 @@
+{
+  "name": "subscription-feed-for-youtube",
+  "version": "2.0.0",
+  "homepage": "https://github.com/jurca/subscription-feed-for-youtube",
+  "authors": [
+    "Martin Jurča <mjurca@centrum.cz>"
+  ],
+  "description": "Google Chrome extension for monitoring YouTube channels for new videos.",
+  "moduleType": [
+    "amd"
+  ],
+  "keywords": [
+    "google-chrome",
+    "chrome",
+    "extension",
+    "youtube"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.3",
+    "angular": "~1.3.8",
+    "angular-route": "~1.3.8",
+    "bootstrap": "~3.3.1",
+    "requirejs": "~2.1.15"
+  }
+}
