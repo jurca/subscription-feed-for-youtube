@@ -5,7 +5,10 @@ module.exports = function(grunt) {
       options: {
         experimental: true,
         modules: "amd",
-        moduleNames: false
+        moduleNames: false,
+        types: true,
+        typeAssertions: true,
+        typeAssertionModule: "assert"
       },
       build: {
         files: [{
@@ -15,12 +18,19 @@ module.exports = function(grunt) {
           dest: 'dist'
         }]
       },
+    },
+    watch: {
+      files: "src/**/*.js",
+      tasks: "traceur"
     }
   });
 
-  // Load the the "traceur" task.
+  // Load the "traceur" task
   grunt.loadNpmTasks('grunt-traceur');
 
-  // Default task(s).
+  // Load the "watch" task
+  grunt.loadNpmTasks('grunt-contrib-watch');
+
+  // Default task(s)
   grunt.registerTask('default', ['traceur']);
 };
