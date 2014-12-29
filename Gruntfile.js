@@ -8,7 +8,8 @@ module.exports = function(grunt) {
         moduleNames: false,
         types: true,
         typeAssertions: true,
-        typeAssertionModule: "assert"
+        typeAssertionModule: "assert",
+        annotations: true
       },
       build: {
         files: [{

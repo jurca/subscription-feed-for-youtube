@@ -1,7 +1,9 @@
 
 import "moment";
 import Enum from "../Enum";
+import Generated from "./annotation/Generated";
 import PrimaryKey from "./annotation/PrimaryKey";
+import Time from "./Time";
 
 /**
  * Moment instances constructor.
@@ -29,8 +31,8 @@ export default class AbstractModel {
         this[field] = moment(data[field]);
       } else if (this[field] instanceof Enum) {
         this[field] = this[field].constructor[data[field]];
-      } else if (this[field] instanceof AbstractModel) {
-        this[field] = this[field].constructor.find(data[field]);
+      } else if (this[field] instanceof Time) {
+        this[field] = new Time(data[field]);
       } else {
         this[field] = data[field];
       }
@@ -46,33 +48,33 @@ export default class AbstractModel {
   serialize(): Object {
     let serialized = {};
 
+    let annotations = this.constructor.annotations || [];
+    let primaryKey = null;
+    let primaryKeyGenerated = false;
+    for (let annotation of annotations) {
+      if (annotation instanceof Generated) {
+        primaryKeyGenerated = true;
+      }
+      if (annotation instanceof PrimaryKey) {
+        primaryKey = annotation.fieldName;
+      }
+    }
+    if (primaryKey === null) {
+      throw new Error(`The ${this.constructor.name} model class does not ` +
+          "specify the primary key field.");
+    }
+
     for (field of Object.keys(this)) {
+      if (primaryKeyGenerated && (field === primaryKey)) {
+        continue;
+      }
+
       if (this[field] instanceof Moment) {
         serialized[field] = this[field].toDate();
       } else if (this[field] instanceof Enum) {
         serialized[field] = this[field].name;
-      } else if (this[field] instanceof AbstractModel) {
-        let annotations = this[field].constructor.annotations;
-        if (!annotations) {
-          throw new Error(`The ${field} field is a ` +
-              `${this[field].constructor.name} model instance, but the ` +
-              "model does not define a primary key");
-        }
-
-        let primaryKeyField = null;
-        annotations.some((annotation) => {
-          if (annotation instanceof PrimaryKey) {
-            primaryKeyField = annotation.fieldName;
-            return true;
-          }
-        });
-        if (!primaryKeyField) {
-          throw new Error(`The ${field} field is a ` +
-              `${this[field].constructor.name} model instance, but the ` +
-              "model does not define a primary key");
-        }
-
-        serialized[field] = this[field][primaryKeyField];
+      } else if (this[field] instanceof Time) {
+        serialized[field] = this[field].value;
       } else {
         serialized[field] = this[field];
       }
