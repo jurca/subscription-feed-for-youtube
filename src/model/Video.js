@@ -1,11 +1,13 @@
 
 import "moment";
+import PrimaryKey from "./annotation/PrimaryKey";
 import AbstractModel from "./AbstractModel";
 import Time from "./Time";
 
 /**
  * Model representing a YouTube video.
  */
+@PrimaryKey("id")
 export default class Video extends AbstractModel {
   /**
    * Initializes the model.
