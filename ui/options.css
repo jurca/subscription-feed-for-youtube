@@ -1,0 +1,100 @@
+/* main layout */
+
+html,
+body,
+.fullbleed {
+  height: 100%;
+}
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
+
+#main-menu ul {
+  padding-left: 1em;
+}
+
+#main-menu li {
+  list-style: none;
+  margin-bottom: 1em;
+}
+
+#main-menu .active {
+  font-weight: bold;
+}
+
+#main-menu a {
+  text-decoration: none;
+}
+
+#view-container {
+  background: #f9f9f9;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.scrollable-content {
+  height: calc(100% - 53px);
+  overflow: auto;
+}
+
+table.table > tbody > tr > td {
+  vertical-align: middle;
+}
+
+/* accounts management */
+
+#add-account {
+  width: 100%;
+}
+
+
+/* toolbar */
+
+.toolbar {
+  background: rgb(255, 76, 76);
+  color: white;
+  position: relative;
+  z-index: 1;
+}
+
+.toolbar h2 {
+  margin-top: 10px;
+}
+
+.shadow-container {
+  width: 100%;
+  height: 0;
+  float: left;
+}
+
+.shadow {
+  height: 6px;
+  box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
+}
+
+/* various utility classes */
+
+.top-offset {
+  padding-top: 2em;
+}
+
+/* modified fixed container width to adjust for the sidebar menu */
+
+@media (min-width: 768px) {
+  .container {
+    width: 562px;
+  }
+}
+
+@media (min-width: 992px) {
+  .container {
+    width: 727px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    width: 877px;
+  }
+}

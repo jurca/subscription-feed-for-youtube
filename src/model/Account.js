@@ -56,7 +56,7 @@ export default class Account extends AbstractModel {
     /**
      * The current OAuth2 token for retrieving the priviledged information.
      *
-     * @type {string}
+     * @type {Object}
      */
     this.oauthToken = null;
 

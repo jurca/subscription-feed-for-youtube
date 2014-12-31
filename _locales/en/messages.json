@@ -11,8 +11,48 @@
     "message": "Google Chrome extension for monitoring YouTube channels for new videos.",
     "description": "Extension description"
   },
+
   "browserAction_title": {
     "message": "Subscription Feed for YouTube",
     "description": "Title of the browser action button"
+  },
+
+  "options_pageTitle": {
+    "message": "Options - Subscription Feed for YouTube",
+    "description": "Page title of the options page"
+  },
+  "options_title": {
+    "message": "Subscription Feed Options",
+    "description": "In-page title of the options page"
+  },
+
+  "options_menu_accounts": {
+    "message": "Accounts and subscriptions",
+    "description": "Label for menu item for account & subscriptions management in the options page"
+  },
+  "options_menu_videos": {
+    "message": "Video feed",
+    "description": "Label for menu item for video feed settings and preview in the options page"
+  },
+  "options_menu_synchronization": {
+    "message": "Synchronization",
+    "description": "Label for menu item for synchronization in the options page"
+  },
+
+  "options_accounts_title": {
+    "message": "YouTube accounts",
+    "description": "Title of the accounts and subscriptions management section in options"
+  },
+  "options_accounts_add": {
+    "message": "add account",
+    "description": "Label for button for adding new YouTube account"
+  },
+  "options_accounts_incognitoTitle": {
+    "message": "Incognito subscriptions",
+    "description": "Header of the accounts managent section in options for incognito subscriptions"
+  },
+  "options_accounts_addIncognitoPlaceholder": {
+    "message": "add YouTube channel or playlist",
+    "description": "placeholder for the 'add incognito subscription' input"
   }
 }

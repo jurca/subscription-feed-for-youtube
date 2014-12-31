@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html ng-controller="Options as options" ng-cloak>
+  <head>
+    <title>{{options_pageTitle}}</title>
+
+    <script src="../node_modules/grunt-traceur/node_modules/traceur/bin/traceur-runtime.js"></script>
+    <script data-main="../dist/ui/options/bootstrap" src="../bower_components/requirejs/require.js"></script>
+    <script src="../src/requirejs-config.js"></script>
+
+    <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="options.css">
+  </head>
+  <body>
+    <div class="container-fluid fullbleed">
+      <div class="row fullbleed">
+        <div class="col-xs-3 fullbleed" id="main-menu">
+          <div class="row toolbar">
+            <div class="col-xs-12 fullbleed">
+              <h2>{{options_title}}</h2>
+            </div>
+            <div class="shadow-container">
+              <div class="shadow"></div>
+            </div>
+          </div>
+
+          <ul class="top-offset">
+            <li>
+              <a href="#/accounts" class="active" ng-click="options.switchPage('accounts')">{{options_menu_accounts}}</a>
+            </li>
+            <li>
+              <a href="#/videos" ng-click="options.switchPage('videos')">{{options_menu_videos}}</a>
+            </li>
+            <li>
+              <a href="#/synchronization" ng-click="options.switchPage('synchronization')">{{options_menu_synchronization}}</a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-xs-9 fullbleed" id="view-container">
+          <div ng-view class="fullbleed"></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
