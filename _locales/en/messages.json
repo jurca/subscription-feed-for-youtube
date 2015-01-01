@@ -54,5 +54,14 @@
   "options_accounts_addIncognitoPlaceholder": {
     "message": "add YouTube channel or playlist",
     "description": "placeholder for the 'add incognito subscription' input"
+  },
+
+  "options_videos_showWatched": {
+    "message": "Show watched videos in the video feed",
+    "description": "Label for the checkbox for showing watched videos in the video feed"
+  },
+  "options_videos_title": {
+    "message": "Video feed",
+    "description": "Title of the video feed section of the options page"
   }
 }
