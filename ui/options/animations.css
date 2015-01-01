@@ -1,0 +1,58 @@
+#view-container {
+  position: relative;
+}
+
+[ng-view].ng-enter, [ng-view].ng-leave {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+[ng-view].ng-enter {
+  -webkit-animation: 0.4s fade-in;
+  animation: 0.4s fade-in;
+  z-index: 100;
+}
+
+[ng-view].ng-leave {
+  -webkit-animation: 0.4s fade-out;
+  animation: 0.4s fade-out;
+  z-index:99;
+}
+
+@-webkit-keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}

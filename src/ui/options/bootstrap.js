@@ -1,12 +1,13 @@
 
 import angular from "angular";
 import "angular-route";
+import "angular-animate";
 import Options from "../../controller/Options";
 import Accounts from "../../controller/Accounts";
 import Videos from "../../controller/Videos";
 import Synchronization from "../../controller/Synchronization";
 
-let application = angular.module("application", ["ngRoute"]);
+let application = angular.module("application", ["ngRoute", "ngAnimate"]);
 
 application.config(["$routeProvider", ($routeProvider) => {
   $routeProvider.when("/accounts", {

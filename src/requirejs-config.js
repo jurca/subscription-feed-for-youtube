@@ -1,6 +1,7 @@
 require.config({
   paths: {
     "angular": "/bower_components/angular/angular.min",
+    "angular-animate": "/bower_components/angular-animate/angular-animate.min",
     "angular-route": "/bower_components/angular-route/angular-route.min",
     "assert": "/bower_components/assert/dist/amd/assert",
     "twitter-bootstrap": "/bower_components/bootstrap/dist/js/bootstrap.min",
@@ -12,6 +13,9 @@ require.config({
     "angular": {
       deps: ["jquery"],
       exports: "angular"
+    },
+    "angular-animate": {
+      deps: ["angular"]
     },
     "angular-route": {
       deps: ["angular"]
