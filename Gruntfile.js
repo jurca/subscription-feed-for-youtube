@@ -9,7 +9,8 @@ module.exports = function(grunt) {
         types: true,
         typeAssertions: true,
         typeAssertionModule: "assert",
-        annotations: true
+        annotations: true,
+        asyncFunctions: true
       },
       build: {
         files: [{
