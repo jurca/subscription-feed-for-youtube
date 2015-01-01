@@ -60,12 +60,29 @@
     "description": "placeholder for the 'add incognito subscription' input"
   },
 
+  "options_videos_title": {
+    "message": "Video feed",
+    "description": "Title of the video feed section of the options page"
+  },
   "options_videos_showWatched": {
     "message": "Show watched videos in the video feed",
     "description": "Label for the checkbox for showing watched videos in the video feed"
   },
-  "options_videos_title": {
-    "message": "Video feed",
-    "description": "Title of the video feed section of the options page"
+
+  "options_synchronization_title": {
+    "message": "Synchronization with watch history",
+    "description": "Title of the synchronization section of the options page"
+  },
+  "options_synchronization_synchronize": {
+    "message": "synchronize",
+    "description": "Label on the 'synchronize' button in the synchronization section of the options page"
+  },
+  "options_synchronization_shortDescription": {
+    "message": "Here you can synchronize the extension with your recent YouTube watch history of any of your accounts. This synchronization only marks the videos watched by the selected account as watched, it wont mark the rest as unwatched.",
+    "description": "Short, initial description of the synchronization section of the options page"
+  },
+  "options_synchronization_longDescription": {
+    "message": "The synchronization feature requires access to your private account data, which can be granted for only about an hour (unless the extension would request a 'refresh token', but there are other issues involved). That's why the synchronization is only on-demand and may require you to confirm your authorization. Please note that your watch history always contains only the videos for the last few days.",
+    "description": "Long description of the synchronization feature at the bottom of the synchronization section of the options page"
   }
 }
