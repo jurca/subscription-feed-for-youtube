@@ -14,7 +14,8 @@ export default class Options {
   constructor($scope, $location) {
     // localization
     $scope.options_pageTitle = L10n.get("options_pageTitle");
-    $scope.options_title = L10n.get("options_title");
+    $scope.options_title_short = L10n.get("options_title_short");
+    $scope.options_title_full = L10n.get("options_title_full");
     $scope.options_menu_accounts = L10n.get("options_menu_accounts");
     $scope.options_menu_videos = L10n.get("options_menu_videos");
     $scope.options_menu_synchronization =

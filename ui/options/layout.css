@@ -52,10 +52,26 @@ table.table > tbody > tr > td {
 .toolbar {
   position: relative;
   z-index: 1;
+  height: 53px;
 }
 
 .toolbar h2 {
   margin-top: 10px;
+  white-space: nowrap;
+}
+
+#long-page-title {
+  display: none;
+}
+
+@media (min-width: 1530px) {
+  #short-page-title {
+    display: none;
+  }
+
+  #long-page-title {
+    display: block;
+  }
 }
 
 .shadow-container {

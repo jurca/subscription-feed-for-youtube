@@ -21,7 +21,11 @@
     "message": "Options - Subscription Feed for YouTube",
     "description": "Page title of the options page"
   },
-  "options_title": {
+  "options_title_short": {
+    "message": "Options",
+    "description": "In-page title of the options page (short version)"
+  },
+  "options_title_full": {
     "message": "Subscription Feed Options",
     "description": "In-page title of the options page"
   },
