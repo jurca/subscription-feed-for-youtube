@@ -28,7 +28,6 @@ body,
 }
 
 #view-container {
-  background: #f9f9f9;
   padding-left: 0;
   padding-right: 0;
 }
@@ -48,12 +47,9 @@ table.table > tbody > tr > td {
   width: 100%;
 }
 
-
 /* toolbar */
 
 .toolbar {
-  background: rgb(255, 76, 76);
-  color: white;
   position: relative;
   z-index: 1;
 }
@@ -70,9 +66,7 @@ table.table > tbody > tr > td {
 
 .shadow {
   height: 6px;
-  box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
 }
-
 /* various utility classes */
 
 .top-offset {

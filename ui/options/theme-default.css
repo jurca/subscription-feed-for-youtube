@@ -1,0 +1,16 @@
+/* main layout */
+
+#view-container {
+  background: #f9f9f9;
+}
+
+/* toolbar */
+
+.toolbar {
+  background: rgb(255, 76, 76);
+  color: white;
+}
+
+.shadow {
+  box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
+}
