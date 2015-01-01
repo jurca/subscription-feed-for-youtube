@@ -73,22 +73,26 @@ table.table > tbody > tr > td {
   padding-top: 2em;
 }
 
+.full-width {
+  width: 100%;
+}
+
 /* modified fixed container width to adjust for the sidebar menu */
 
 @media (min-width: 768px) {
   .container {
-    width: 562px;
+    width: 544px;
   }
 }
 
 @media (min-width: 992px) {
   .container {
-    width: 727px;
+    width: 712px;
   }
 }
 
 @media (min-width: 1200px) {
   .container {
-    width: 877px;
+    width: 867px;
   }
 }
