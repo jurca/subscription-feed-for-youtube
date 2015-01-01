@@ -11,7 +11,7 @@ export default class Options {
    *
    * @param $scope Angular template scope.
    */
-  constructor($scope) {
+  constructor($scope, $location) {
     // localization
     $scope.options_pageTitle = L10n.get("options_pageTitle");
     $scope.options_title = L10n.get("options_title");
@@ -19,6 +19,11 @@ export default class Options {
     $scope.options_menu_videos = L10n.get("options_menu_videos");
     $scope.options_menu_synchronization =
         L10n.get("options_menu_synchronization");
+
+    // in case we arrived to a different sub-page than the accounts sub-page...
+    if ($location.path() !== "/accounts") {
+      this.switchPage($location.path().substring(1));
+    }
   }
 
   /**
@@ -35,4 +40,4 @@ export default class Options {
   }
 }
 
-Options.$inject = ["$scope"];
+Options.$inject = ["$scope", "$location"];
