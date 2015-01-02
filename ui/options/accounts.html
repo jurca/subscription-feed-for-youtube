@@ -13,7 +13,9 @@
       <div class="container top-offset">
         <div class="row">
           <div class="col-xs-8">
-            <button class="btn btn-default"><input type="checkbox"></button>
+            <button class="btn btn-default" ng-click="controller.selectAllAccounts('select-all-accounts');">
+              <input id="select-all-accounts" ng-click="controller.toggleCheckbox('select-all-accounts')" type="checkbox">
+            </button>
             <button class="btn btn-default"><span class="glyphicon glyphicon-ok"></span></button>
             <button class="btn btn-default"><span class="glyphicon glyphicon-ban-circle"></span></button>
             <button class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></button>
@@ -59,7 +61,7 @@
 
         <div class="row top-offset">
           <div class="col-xs-12">
-            <table class="table table-hover">
+            <table id="accounts-list" class="table table-hover">
               <col width="42">
               <col width="*">
               <col width="*">
@@ -105,7 +107,9 @@
 
         <div class="row top-offset">
           <div class="col-xs-12">
-            <button class="btn btn-default"><input type="checkbox"></button>
+            <button class="btn btn-default" ng-click="controller.selectAllSubscriptions('select-all-subscriptions');">
+              <input id="select-all-subscriptions" ng-click="controller.toggleCheckbox('select-all-subscriptions')" type="checkbox">
+            </button>
             <button class="btn btn-default"><span class="glyphicon glyphicon-ok"></span></button>
             <button class="btn btn-default"><span class="glyphicon glyphicon-ban-circle"></span></button>
             <button class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></button>
@@ -114,7 +118,7 @@
 
         <div class="row top-offset">
           <div class="col-xs-12">
-            <table class="table table-hover">
+            <table id="subscriptions-list" class="table table-hover">
               <col width="42">
               <col width="*">
               <col width="*">

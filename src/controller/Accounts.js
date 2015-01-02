@@ -38,6 +38,7 @@ export default class Accounts {
 
     // publish the controller to the scope
     $scope.controller = this;
+    this.scope = $scope;
   }
 
   /**
@@ -55,6 +56,29 @@ export default class Accounts {
         errorMessage.css("height", "");
       }, 15000);
     }
+  }
+
+  toggleCheckbox(checkboxId: string): void {
+    let checkbox = angular.element(`#${checkboxId}`)[0];
+    checkbox.checked = !checkbox.checked;
+  }
+
+  selectAllAccounts(checkboxId: string): void {
+    this.toggleCheckbox(checkboxId);
+
+    angular.element("#accounts-list input[type='checkbox']").each(function () {
+      this.checked = angular.element(`#${checkboxId}`)[0].checked;
+    });
+  }
+
+  selectAllSubscriptions(checkboxId: string): void {
+    this.toggleCheckbox(checkboxId);
+
+    let selector = "#subscriptions-list input[type='checkbox']";
+    let checkboxes = angular.element(selector);
+    checkboxes.each(function () {
+      this.checked = angular.element(`#${checkboxId}`)[0].checked;
+    });
   }
 }
 
