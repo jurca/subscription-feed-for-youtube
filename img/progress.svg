@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="100"
+   height="100">
+  <metadata id="metadata7">
+    <rdf:RDF>
+      <cc:Work rdf:about="Progress wheel by Martin Jurča">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>Progress wheel</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g transform="translate(50, 50)">
+    <g>
+      <animateTransform
+        attributeName="transform"
+        attributeType="XML"
+        type="rotate"
+        values="0; 30; 60; 90; 120; 150; 180; 210; 240; 270; 300; 330"
+        dur="1.2s"
+        additive="sum"
+        calcMode="discrete"
+        repeatCount="indefinite"/>
+      <rect
+        x="-3" y="-45"
+        width="6" height="26"
+        rx="3" ry="3"
+        transform="rotate(0)"
+        style="opacity: 1; stroke:none;" />
+      <rect
+        x="-3" y="-45"
+        width="6" height="26"
+        rx="3" ry="3"
+        transform="rotate(330)"
+        style="opacity: 0.91666666666; stroke:none;" />
+      <rect
+        x="-3" y="-45"
+        width="6" height="26"
+        rx="3" ry="3"
+        transform="rotate(300)"
+        style="opacity: 0.83333333333; stroke:none;" />
+      <rect
+        x="-3" y="-45"
+        width="6" height="26"
+        rx="3" ry="3"
+        transform="rotate(270)"
+        style="opacity: 0.75; stroke:none;" />
+      <rect
+        x="-3" y="-45"
+        width="6" height="26"
+        rx="3" ry="3"
+        transform="rotate(240)"
+        style="opacity: 0.66666666666; stroke:none;" />
+      <rect
+        x="-3" y="-45"
+        width="6" height="26"
+        rx="3" ry="3"
+        transform="rotate(210)"
+        style="opacity: 0.58333333333; stroke:none;" />
+      <rect
+        x="-3" y="-45"
+        width="6" height="26"
+        rx="3" ry="3"
+        transform="rotate(180)"
+        style="opacity: 0.5; stroke:none;" />
+      <rect
+        x="-3" y="-45"
+        width="6" height="26"
+        rx="3" ry="3"
+        transform="rotate(150)"
+        style="opacity: 0.41666666666; stroke:none;" />
+      <rect
+        x="-3" y="-45"
+        width="6" height="26"
+        rx="3" ry="3"
+        transform="rotate(120)"
+        style="opacity: 0.33333333333; stroke:none;" />
+      <rect
+        x="-3" y="-45"
+        width="6" height="26"
+        rx="3" ry="3"
+        transform="rotate(90)"
+        style="opacity: 0.25; stroke:none;" />
+      <rect
+        x="-3" y="-45"
+        width="6" height="26"
+        rx="3" ry="3"
+        transform="rotate(60)"
+        style="opacity: 0.16666666666; stroke:none;" />
+      <rect
+        x="-3" y="-45"
+        width="6" height="26"
+        rx="3" ry="3"
+        transform="rotate(30)"
+        style="opacity: 0.08333333333; stroke:none;" />
+    </g>
+  </g>
+</svg>
