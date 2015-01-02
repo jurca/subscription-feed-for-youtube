@@ -28,6 +28,17 @@ export default class Configuration {
   }
 
   /**
+   * Registers the provided observer to be executed whenever the configuration
+   * is modified. The argument passed to the observer function is a map of
+   * configuration item names to their new values.
+   *
+   * @param {function(Object<string, *>)} observer The observer to register.
+   */
+  addChangeListener(observer: Function): void {
+    chrome.storage.onChanged.addListener(observer);
+  }
+
+  /**
    * Retrieves or sets the "show watched videos" flag. The method retrieves the
    * flag if invoked without an argument.
    *
