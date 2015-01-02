@@ -47,7 +47,7 @@ export default class GapiClient {
    * @return {boolean} {@code true} if OAuth2 authorization is possible.
    */
   async isAuthorizationPossible(): boolean {
-    return new Promise((resolve, reject) => {
+    return await (new Promise((resolve, reject) => {
       chrome.identity.getProfileUserInfo((userInfo) => {
         if (userInfo) {
           resolve(!!userInfo.id);
@@ -55,7 +55,7 @@ export default class GapiClient {
           reject(new Error(chrome.runtime.lastError));
         }
       });
-    });
+    }));
   }
 
   /**
@@ -95,7 +95,7 @@ export default class GapiClient {
       });
     }));
 
-    return new Promise((resolve, reject) => {
+    return await (new Promise((resolve, reject) => {
       chrome.identity.getProfileUserInfo((userInfo) => {
         if (userInfo) {
           resolve({
@@ -106,7 +106,7 @@ export default class GapiClient {
           reject(new Error(chrome.runtime.lastError));
         }
       });
-    });
+    }));
   }
 
   /**

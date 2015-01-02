@@ -56,3 +56,7 @@
     opacity: 0;
   }
 }
+
+.collapsable {
+  transition: 0.4s;
+}

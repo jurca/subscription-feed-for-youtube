@@ -83,14 +83,35 @@ table.table > tbody > tr > td {
 .shadow {
   height: 6px;
 }
+
 /* various utility classes */
 
 .top-offset {
   padding-top: 2em;
 }
 
+.top-margined {
+  margin-top: 2em;
+}
+
+.padded {
+  padding: 1em;
+}
+
 .full-width {
   width: 100%;
+}
+
+.big-glyphicon {
+  font-size: 2em;
+}
+
+.collapsable {
+  overflow: hidden;
+}
+
+.vertically-collapsed {
+  height: 0;
 }
 
 /* modified fixed container width to adjust for the sidebar menu */

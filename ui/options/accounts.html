@@ -19,7 +19,24 @@
             <button class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></button>
           </div>
           <div class="col-xs-4">
-            <button id="add-account" class="btn btn-primary" ng-click="add">{{options_accounts_add}}</button>
+            <button id="add-account" class="btn btn-primary" ng-click="controller.addAccount()">{{options_accounts_add}}</button>
+          </div>
+        </div>
+
+        <div id="not-signed-into-browser" class="collapsable vertically-collapsed">
+          <div class="top-margined bg-warning text-justify">
+            <table>
+              <tbody>
+                <tr>
+                  <td class="padded">
+                    <span class="glyphicon glyphicon-warning-sign text-warning big-glyphicon"></span>
+                  </td>
+                  <td class="padded">
+                    <strong>{{options_accounts_notSignedIntoBrowser}}</strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 

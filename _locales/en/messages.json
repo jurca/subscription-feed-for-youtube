@@ -51,6 +51,10 @@
     "message": "add account",
     "description": "Label for button for adding new YouTube account"
   },
+  "options_accounts_notSignedIntoBrowser": {
+    "message": "It appears that you are not currently signed into Chrome with your Google Account. Because of this, you will be asked to sign into Chrome when you attempt to add a YouTube account. Please sign into the Google account that is also the YouTube account you intend to add.",
+    "description": "Warning shown to the user in case they are not signed into the browser"
+  },
   "options_accounts_incognitoTitle": {
     "message": "Incognito subscriptions",
     "description": "Header of the accounts managent section in options for incognito subscriptions"
