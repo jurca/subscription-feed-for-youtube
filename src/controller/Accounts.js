@@ -58,11 +58,22 @@ export default class Accounts {
     }
   }
 
+  /**
+   * Toggles the checkbox identified by the specified ID.
+   *
+   * @param {string} checkboxId DOM element ID identifying the checkbox.
+   */
   toggleCheckbox(checkboxId: string): void {
     let checkbox = angular.element(`#${checkboxId}`)[0];
     checkbox.checked = !checkbox.checked;
   }
 
+  /**
+   * Selects or deselects all accounts in the accounts section of the page.
+   *
+   * @param {string} checkboxId DOM element ID identifying the checkbox used to
+   *        select all accounts.
+   */
   selectAllAccounts(checkboxId: string): void {
     this.toggleCheckbox(checkboxId);
 
@@ -71,6 +82,13 @@ export default class Accounts {
     });
   }
 
+  /**
+   * Selects or deselects all subscriptions in the incognito subscriptions
+   * section of the page.
+   *
+   * @param {string} checkboxId DOM element ID identifying the checkbox used to
+   *        select all subscriptions.
+   */
   selectAllSubscriptions(checkboxId: string): void {
     this.toggleCheckbox(checkboxId);
 
