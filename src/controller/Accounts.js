@@ -21,6 +21,8 @@ export default class Accounts {
         L10n.get("options_accounts_incognitoTitle");
     $scope.options_accounts_addIncognitoPlaceholder =
         L10n.get("options_accounts_addIncognitoPlaceholder");
+    $scope.options_accounts_authorizationFailed =
+        L10n.get("options_accounts_authorizationFailed");
 
     // show warning if the user is not signed into Chrome
     let notSingedInMessage = angular.element("#not-signed-into-browser");
@@ -43,11 +45,15 @@ export default class Accounts {
    */
   async addAccount(): void {
     let gapi = new GapiClient();
+    let errorMessage = angular.element("#authorization-failed");
     try {
       let authorization = await gapi.authorize(false);
       console.log(authorization);
     } catch (error) {
-      console.log(error);
+      errorMessage.css("height", `${errorMessage[0].scrollHeight}px`);
+      setTimeout(() => {
+        errorMessage.css("height", "");
+      }, 15000);
     }
   }
 }

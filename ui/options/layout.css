@@ -98,6 +98,10 @@ table.table > tbody > tr > td {
   padding: 1em;
 }
 
+.right-padded {
+  padding-right: 1em;
+}
+
 .full-width {
   width: 100%;
 }

@@ -55,6 +55,10 @@
     "message": "It appears that you are not currently signed into Chrome with your Google Account. Because of this, you will be asked to sign into Chrome when you attempt to add a YouTube account. Please sign into the Google account that is also the YouTube account you intend to add.",
     "description": "Warning shown to the user in case they are not signed into the browser"
   },
+  "options_accounts_authorizationFailed": {
+    "message": "You have either canceled the authorization, or the authorization failed for some reason. If you want to add a different account than the one that was shown for authorization, you need to sign out of Chrome and sign into Chrome using the account you want to add.",
+    "description": "Error message shown if the OAuth2 authorization process fails when adding a new account"
+  },
   "options_accounts_incognitoTitle": {
     "message": "Incognito subscriptions",
     "description": "Header of the accounts managent section in options for incognito subscriptions"
