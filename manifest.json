@@ -28,10 +28,20 @@
     "page": "ui/options.html"
   },
 
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "content_security_policy": "script-src 'self' 'unsafe-eval' https://apis.google.com; object-src 'self'",
   "permissions": [
+    "identity",
     "storage",
     "tabs",
-    "unlimitedStorage"
-  ]
+    "unlimitedStorage",
+    "https://apis.google.com/"
+  ],
+
+  "oauth2": {
+    "client_id": "512970322971-990i5ci6u9vc7fhtg8hvn7jk02u87ehc.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/youtube"
+    ]
+  },
+  "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCtD/gLgZ/oqSqp6tAIcu0eFCqAP/AsLI6acIA76Ib60TlBz286poHQju7zcz1TXAW3y+hjlarjNy35TqlRUBeYRoN0zBCr/wL1X/pfhp/QGasoyPls/pu1DjAzlkDjSzOS05st/xRGa0s8N95clVkMYXyruyNoPSfJc7LoFRm7YwIDAQAB"
 }
