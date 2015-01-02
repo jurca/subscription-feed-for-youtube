@@ -18,11 +18,18 @@ export default class Account extends AbstractModel {
     super();
 
     /**
-     * Account ID.
+     * Account ID, provided by the Chrome OAuth2 API.
      *
      * @type {string}
      */
     this.id = null;
+
+    /**
+     * ID of the YouTube channel associated with the account.
+     *
+     * @type {string}
+     */
+    this.channelId = null;
 
     /**
      * The name of the account.
