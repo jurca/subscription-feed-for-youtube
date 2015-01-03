@@ -60,6 +60,13 @@ export default class Subscription extends AbstractModel {
     this.state = SubscriptionState.ACTIVE;
 
     /**
+     * The last reported error related to this subscription.
+     *
+     * @type {string}
+     */
+    this.lastError = null;
+
+    /**
      * The ID of the account from which this subscription has been provided.
      * The field is {@code null} if this is a incognito subscription.
      *
