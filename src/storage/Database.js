@@ -136,7 +136,7 @@ function executeErrorObservers(instance: Database, error): void {
  *        reset.
  */
 function reconnect(instance: Database): void {
-  instance[FIELDS.database].close();
+  instance[FIELDS.database].then((database) => database.close());
 
   instance[FIELDS.database] = new Promise((resolve) => {
     setTimeout(resolve, RECONNECT_DELAY); // give it some time to upgrade
@@ -154,7 +154,7 @@ function reconnect(instance: Database): void {
  *
  * @return {Promise<IDBDatabase>} Promise resolved to the database connection.
  */
-function connect(): Promise<IDBDatabase> {
+function connect(): Promise {
   return new Promise((resolve, reject) => {
     let openRequest = indexedDB.open(DB_NAME, DB_VERSION);
     openRequest.onerror = reject;
