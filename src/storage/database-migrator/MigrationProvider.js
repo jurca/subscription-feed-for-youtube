@@ -30,7 +30,7 @@ export default class MigrationProvider {
     }
 
     let targetVersion = MIGRATORS.length;
-    for (let version = currentVersion; version <= targetVersion; version++) {
+    for (let version = currentVersion; version < targetVersion; version++) {
       let migrator = new MIGRATORS[currentVersion]();
       migrator.migrate(database);
     }
