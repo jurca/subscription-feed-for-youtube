@@ -28,6 +28,15 @@
     "page": "ui/options.html"
   },
 
+  "background": {
+    "scripts": [
+      "node_modules/grunt-traceur/node_modules/traceur/bin/traceur-runtime.js",
+      "bower_components/requirejs/require.js",
+      "src/requirejs-config.js",
+      "src/background/bootstrap.js"
+    ]
+  },
+
   "content_security_policy": "script-src 'self' 'unsafe-eval' https://apis.google.com; object-src 'self'",
   "permissions": [
     "identity",
