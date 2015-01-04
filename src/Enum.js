@@ -47,7 +47,7 @@ export default class Enum {
     if (this.constructor === Enum) {
       throw new Error("The enum class is abstract");
     }
-    if (Object.isFronzen(this.constructor)) {
+    if (Object.isFrozen(this.constructor)) {
       throw new Error("This enum is already constructed, no new constants " +
           "may be created");
     }

@@ -25,9 +25,9 @@ export default class EnumFactory {
    *
    * @param {...string} constants Names of the constants the enum class should
    *        contain.
-   * @return {Enum} The created enum class.
+   * @return {Function} The created enum class.
    */
-  static create(...constants: Array<string>): Enum {
+  static create(...constants: Array<string>): Function {
     let FactoryEnum = class extends Enum {
       constructor() {
         super();
