@@ -164,7 +164,11 @@ function connect(): Promise {
 
     openRequest.onupgradeneeded = (event) => {
       let database = event.target.result;
-      migrator.migrate(database);
+      try {
+        migrator.migrate(database);
+      } catch (e) {
+        reject(e);
+      }
     };
   });
 }
