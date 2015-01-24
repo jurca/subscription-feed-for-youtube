@@ -1,6 +1,10 @@
 
 import GapiClient from "../GapiClient";
 import L10n from "../L10n";
+import Account from "../model/Account";
+import Database from "../storage/Database";
+
+let db = new Database();
 
 /**
  * Accounts and subscriptions management controller.
@@ -39,6 +43,15 @@ export default class Accounts {
     // publish the controller to the scope
     $scope.controller = this;
     this.scope = $scope;
+
+    (async () => {
+      try {
+        let accounts = await loadAccounts();
+        console.log(accounts);
+      } catch (e) {
+        console.log(e);
+      }
+    })();
   }
 
   /**
@@ -101,3 +114,33 @@ export default class Accounts {
 }
 
 Accounts.$inject = ["$scope"];
+
+/**
+ * Loads the YouTube accounts of the user from the database.
+ *
+ * @return {Account[]} YouTube accounts of the user.
+ */
+async function loadAccounts(): Array {
+  let connection = await db.getConnection();
+  let transaction = connection.transaction(["Account"], "readonly");
+  let accountsStorage = transaction.objectStore("Account");
+  let cursorRequest = accountsStorage.openCursor();
+
+  return await new Promise((resolve, reject) => {
+    let accounts = [];
+
+    cursorRequest.onsuccess = () => {
+      let cursor = cursorRequest.result;
+
+      while (cursor && cursor.key !== undefined) {
+        let account = new Account();
+        account.load(cursor.value);
+        accounts.push(account);
+        cursor.continue();
+      }
+
+      resolve(accounts);
+    };
+    cursorRequest.onerror = () => reject(cursorRequest.error);
+  });
+}
