@@ -22,7 +22,7 @@ export default class MigrationProvider {
    */
   migrate(database: IDBDatabase) {
     let currentVersion = database.version;
-    if (currentVersion === "") {
+    if ((currentVersion === "") || !database.objectStoreNames.length) {
       currentVersion = 0;
     } else if (typeof currentVersion === "string") {
       // DB version is always an int in our case
