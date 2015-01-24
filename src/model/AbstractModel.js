@@ -24,7 +24,7 @@ export default class AbstractModel {
   load(data: Object): void {
     Object.keys(data).forEach((field) => {
       if (!this.hasOwnProperty(field)) {
-        continue;
+        return;
       }
 
       if (this[field] instanceof Moment) {
