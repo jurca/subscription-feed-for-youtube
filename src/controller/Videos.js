@@ -11,8 +11,12 @@ export default class Videos {
    * @param $scope The angular template scope.
    */
   constructor($scope) {
-    $scope.options_videos_title = L10n.get("options_videos_title");
-    $scope.options_videos_showWatched = L10n.get("options_videos_showWatched");
+    $scope.l10n = {
+      videos: {
+        title: L10n.get("options_videos_title"),
+        showWatched: L10n.get("options_videos_showWatched")
+      }
+    };
   }
 }
 

@@ -1,7 +1,7 @@
 <div class="container-fluid fullbleed">
   <div class="row toolbar">
     <div class="col-xs-12 fullbleed">
-      <h2>{{options_accounts_title}}</h2>
+      <h2>{{l10n.accounts.title}}</h2>
     </div>
     <div class="shadow-container">
       <div class="shadow"></div>
@@ -21,7 +21,7 @@
             <button class="btn btn-default"><span class="glyphicon glyphicon-remove"></span></button>
           </div>
           <div class="col-xs-4">
-            <button id="add-account" class="btn btn-primary" ng-click="controller.addAccount()">{{options_accounts_add}}</button>
+            <button id="add-account" class="btn btn-primary" ng-click="controller.addAccount()">{{l10n.accounts.add}}</button>
           </div>
         </div>
 
@@ -34,7 +34,7 @@
                     <span class="glyphicon glyphicon-warning-sign big-glyphicon"></span>
                   </td>
                   <td>
-                    <strong>{{options_accounts_notSignedIntoBrowser}}</strong>
+                    <strong>{{l10n.accounts.notSignedIntoBrowser}}</strong>
                   </td>
                 </tr>
               </tbody>
@@ -51,7 +51,7 @@
                     <span class="glyphicon glyphicon-exclamation-sign big-glyphicon"></span>
                   </td>
                   <td>
-                    <strong>{{options_accounts_authorizationFailed}}</strong>
+                    <strong>{{l10n.accounts.authorizationFailed}}</strong>
                   </td>
                 </tr>
               </tbody>
@@ -100,13 +100,13 @@
 
           <div class="row">
             <div class="col-xs-12">
-              <h3>{{options_accounts_incognitoTitle}}</h3>
+              <h3>{{l10n.accounts.incognitoTitle}}</h3>
             </div>
           </div>
 
           <div class="row">
             <div class="col-xs-10 col-lg-11">
-              <input type="text" class="form-control" placeholder="{{options_accounts_addIncognitoPlaceholder}}" ng-model="newSubscriptionUrl">
+              <input type="text" class="form-control" placeholder="{{l10n.accounts.addIncognitoPlaceholder}}" ng-model="newSubscriptionUrl">
             </div>
             <div class="col-xs-2 col-lg-1">
               <button class="btn btn-primary full-width" ng-click="subscriptionsController.addSubscription(newSubscriptionUrl)"><span class="glyphicon glyphicon-plus"></span></button>

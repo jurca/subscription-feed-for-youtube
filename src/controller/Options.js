@@ -13,13 +13,18 @@ export default class Options {
    */
   constructor($scope, $location) {
     // localization
-    $scope.options_pageTitle = L10n.get("options_pageTitle");
-    $scope.options_title_short = L10n.get("options_title_short");
-    $scope.options_title_full = L10n.get("options_title_full");
-    $scope.options_menu_accounts = L10n.get("options_menu_accounts");
-    $scope.options_menu_videos = L10n.get("options_menu_videos");
-    $scope.options_menu_synchronization =
-        L10n.get("options_menu_synchronization");
+    $scope.l10n = {
+      pageTitle: L10n.get("options_pageTitle"),
+      title: {
+        short: L10n.get("options_title_short"),
+        full: L10n.get("options_title_full")
+      },
+      menu: {
+        accounts: L10n.get("options_menu_accounts"),
+        videos: L10n.get("options_menu_videos"),
+        synchronization: L10n.get("options_menu_synchronization")
+      }
+    };
 
     // in case we arrived to a different sub-page than the accounts sub-page...
     if ($location.path() !== "/accounts") {

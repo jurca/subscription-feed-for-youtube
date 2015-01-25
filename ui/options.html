@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html ng-controller="Options as options" ng-cloak>
   <head>
-    <title>{{options_pageTitle}}</title>
+    <title>{{l10n.pageTitle}}</title>
 
     <script src="../node_modules/grunt-traceur/node_modules/traceur/bin/traceur-runtime.js"></script>
     <script data-main="../dist/ui/options/bootstrap" src="../bower_components/requirejs/require.js"></script>
@@ -19,8 +19,8 @@
         <div class="col-xs-3 fullbleed" id="main-menu">
           <div class="row toolbar">
             <div class="col-xs-12 fullbleed">
-              <h2 id="short-page-title">{{options_title_short}}</h2>
-              <h2 id="long-page-title">{{options_title_full}}</h2>
+              <h2 id="short-page-title">{{l10n.title.short}}</h2>
+              <h2 id="long-page-title">{{l10n.title.full}}</h2>
             </div>
             <div class="shadow-container">
               <div class="shadow"></div>
@@ -29,13 +29,13 @@
 
           <ul class="top-offset">
             <li>
-              <a href="#/accounts" class="active" ng-click="options.switchPage('accounts')">{{options_menu_accounts}}</a>
+              <a href="#/accounts" class="active" ng-click="options.switchPage('accounts')">{{l10n.menu.accounts}}</a>
             </li>
             <li>
-              <a href="#/videos" ng-click="options.switchPage('videos')">{{options_menu_videos}}</a>
+              <a href="#/videos" ng-click="options.switchPage('videos')">{{l10n.menu.videos}}</a>
             </li>
             <li>
-              <a href="#/synchronization" ng-click="options.switchPage('synchronization')">{{options_menu_synchronization}}</a>
+              <a href="#/synchronization" ng-click="options.switchPage('synchronization')">{{l10n.menu.synchronization}}</a>
             </li>
           </ul>
         </div>

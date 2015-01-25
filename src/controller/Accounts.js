@@ -17,16 +17,19 @@ export default class Accounts {
    */
   constructor($scope) {
     // localization
-    $scope.options_accounts_title = L10n.get("options_accounts_title");
-    $scope.options_accounts_add = L10n.get("options_accounts_add");
-    $scope.options_accounts_notSignedIntoBrowser =
-        L10n.get("options_accounts_notSignedIntoBrowser");
-    $scope.options_accounts_incognitoTitle =
-        L10n.get("options_accounts_incognitoTitle");
-    $scope.options_accounts_addIncognitoPlaceholder =
-        L10n.get("options_accounts_addIncognitoPlaceholder");
-    $scope.options_accounts_authorizationFailed =
-        L10n.get("options_accounts_authorizationFailed");
+    $scope.l10n = {
+      accounts: {
+        title: L10n.get("options_accounts_title"),
+        add: L10n.get("options_accounts_add"),
+        notSignedIntoBrowser:
+            L10n.get("options_accounts_notSignedIntoBrowser"),
+        incognitoTitle: L10n.get("options_accounts_incognitoTitle"),
+        addIncognitoPlaceholder:
+            L10n.get("options_accounts_addIncognitoPlaceholder"),
+        authorizationFailed:
+            L10n.get("options_accounts_authorizationFailed")
+      }
+    };
 
     // show warning if the user is not signed into Chrome
     let notSingedInMessage = angular.element("#not-signed-into-browser");
@@ -40,16 +43,14 @@ export default class Accounts {
       }
     }, 200);
 
-    this.scope = $scope;
-
     this.accounts = [];
 
     (async () => {
       try {
         this.accounts = await loadAccounts();
-        this.scope.$apply();
+        $scope.$apply();
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     })();
   }
