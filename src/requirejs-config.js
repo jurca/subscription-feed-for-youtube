@@ -12,7 +12,7 @@ require.config({
 
   shim: {
     "angular": {
-      deps: ["jquery"],
+      deps: ["jquery", "/dist/polyfill/Array.js"],
       exports: "angular"
     },
     "angular-animate": {
