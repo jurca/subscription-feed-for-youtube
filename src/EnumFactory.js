@@ -31,7 +31,6 @@ export default class EnumFactory {
     let FactoryEnum = class extends Enum {
       constructor() {
         super();
-        Object.freeze(this);
       }
     }
 
