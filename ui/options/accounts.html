@@ -67,6 +67,12 @@
               <col width="*">
               <col width="80">
               <tbody>
+                <tr ng-repeat="account in controller.accounts track by account.id">
+                  <td class="text-center"><input type="checkboc" value="{{account.id}}"></td>
+                  <td>{{account.name}}</td>
+                  <td>{{account.state}}</td>
+                  <td class="text-right"><button class="btn btn-default" ng-click="removeAccount(account.id)"><span class="glyphicon glyphicon-remove"></span></button></td>
+                </tr>
                 <tr>
                   <td class="text-center"><input type="checkbox"></td>
                   <td>mato.jurca@gmail.com</td>

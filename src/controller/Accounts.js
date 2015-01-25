@@ -44,10 +44,12 @@ export default class Accounts {
     $scope.controller = this;
     this.scope = $scope;
 
+    this.accounts = [];
+
     (async () => {
       try {
-        let accounts = await loadAccounts();
-        console.log(accounts);
+        this.accounts = await loadAccounts();
+        this.scope.$apply();
       } catch (e) {
         console.log(e);
       }
