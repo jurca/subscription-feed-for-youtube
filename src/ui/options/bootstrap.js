@@ -4,6 +4,7 @@ import "angular-route";
 import "angular-animate";
 import Options from "../../controller/Options";
 import Accounts from "../../controller/Accounts";
+import IncognitoSubscriptions from "../../controller/IncognitoSubscriptions";
 import Videos from "../../controller/Videos";
 import Synchronization from "../../controller/Synchronization";
 
@@ -30,6 +31,7 @@ application.config(["$routeProvider", ($routeProvider) => {
 
 application.controller("Options", Options);
 application.controller("Accounts", Accounts);
+application.controller("IncognitoSubscriptions", IncognitoSubscriptions);
 application.controller("Videos", Videos);
 application.controller("Synchronization", Synchronization);
 
