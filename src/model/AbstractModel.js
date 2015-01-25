@@ -65,7 +65,7 @@ export default class AbstractModel {
     }
 
     for (field of Object.keys(this)) {
-      if (primaryKeyGenerated && (field === primaryKey)) {
+      if (primaryKeyGenerated && (field === primaryKey) && !this[field]) {
         continue;
       }
 
