@@ -100,16 +100,50 @@
 
           <div class="row">
             <div class="col-xs-12">
-              <h3>{{l10n.accounts.incognitoTitle}}</h3>
+              <h3>{{l10n.accounts.incognito.title}}</h3>
             </div>
           </div>
 
           <div class="row">
             <div class="col-xs-10 col-lg-11">
-              <input type="text" class="form-control" placeholder="{{l10n.accounts.addIncognitoPlaceholder}}" ng-model="newSubscriptionUrl">
+              <input type="text" class="form-control" placeholder="{{l10n.accounts.incognito.addPlaceholder}}" ng-model="newSubscriptionUrl">
             </div>
             <div class="col-xs-2 col-lg-1">
               <button class="btn btn-primary full-width" ng-click="subscriptionsController.addSubscription(newSubscriptionUrl)"><span class="glyphicon glyphicon-plus"></span></button>
+            </div>
+          </div>
+
+          <div id="adding-subscription" class="collapsable vertically-collapsed">
+            <div class="top-margined alert alert-info text-justify">
+              {{l10n.accounts.incognito.addingSubscription}}
+            </div>
+          </div>
+
+          <div id="adding-subscription" class="collapsable vertically-collapsed">
+            <div class="top-margined alert alert-warning text-justify">
+              <p>{{l10n.accounts.incognito.invalidUrl.message}}</p>
+              <ul>
+                <li>{{l10n.accounts.incognito.invalidUrl.example1}}</li>
+                <li>{{l10n.accounts.incognito.invalidUrl.example2}}</li>
+                <li>{{l10n.accounts.incognito.invalidUrl.example3}}</li>
+              </ul>
+            </div>
+          </div>
+
+          <div id="incognito-api-failed" class="collapsable vertically-collapsed">
+            <div class="top-margined alert alert-danger text-justify">
+              <table>
+                <tbody>
+                  <tr>
+                    <td class="right-padded">
+                      <span class="glyphicon glyphicon-exclamation-sign big-glyphicon"></span>
+                    </td>
+                    <td>
+                      <strong>{{l10n.accounts.incognito.apiFailure}}</strong>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
@@ -157,60 +191,42 @@
 
           <div id="modal-overlay"></div>
 
-          <div class="modal-content" id="invalid-subscribable-url">
-            <div class="modal-header">
-              <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title">Invalid YouTube channel, user or playlist address</h4>
-            </div>
-            <div class="modal-body">
-              <p>The address you have provided is not a valid address to a YouTube channel, user or playlist. Here are some examples of valid addresses:</p>
-              <ul>
-                <li>https://www.youtube.com/channel/2SdUCC55-3iny_tLUzAk2Bud (a YouTube channel)</li>
-                <li>https://www.youtube.com/user/someusername3 (a YouTube user)</li>
-                <li>https://www.youtube.com/playlist?list=Fkskvoa44vfdsVs563dVyxd (a YouTube playlist)</li>
-              </ul>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-primary">Close</button>
-            </div>
-          </div>
-
           <div class="modal-content" id="invalid-channel-url">
             <div class="modal-header">
-              <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title">Invalid YouTube channel address</h4>
+              <button type="button" class="close" aria-label="{{l10n.accounts.incognito.modal.close}}"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">{{l10n.accounts.incognito.modal.invalidChannelUrl.title}}</h4>
             </div>
             <div class="modal-body">
-              <p>While the address you provided seems to be in a valid form, it does not appear to lead to any YouTube channel. If you think the address is correct, please try again later, there may be an issue on the YouTube side.</p>
+              <p>{{l10n.accounts.incognito.modal.invalidChannelUrl.message}}</p>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-primary">Close</button>
+              <button type="button" class="btn btn-primary">{{l10n.accounts.incognito.modal.close}}</button>
             </div>
           </div>
 
           <div class="modal-content" id="invalid-user-url">
             <div class="modal-header">
-              <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title">Invalid YouTube user address</h4>
+              <button type="button" class="close" aria-label="{{l10n.accounts.incognito.modal.close}}"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">{{l10n.accounts.incognito.modal.invalidUserUrl.title}}</h4>
             </div>
             <div class="modal-body">
-              <p>While the address you provided seems to be in a valid form, it does not appear to lead to any YouTube user. If you think the address is correct, please try again later, there may be an issue on the YouTube side.</p>
+              <p>{{l10n.accounts.incognito.modal.invalidUserUrl.message}}</p>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-primary">Close</button>
+              <button type="button" class="btn btn-primary">{{l10n.accounts.incognito.modal.close}}</button>
             </div>
           </div>
 
           <div class="modal-content" id="invalid-playlist-url">
             <div class="modal-header">
-              <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title">Invalid YouTube playlist address</h4>
+              <button type="button" class="close" aria-label="{{l10n.accounts.incognito.modal.close}}"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">{{l10n.accounts.incognito.modal.invalidPlaylistUrl.title}}</h4>
             </div>
             <div class="modal-body">
-              <p>While the address you provided seems to be in a valid form, it does not appear to lead to any YouTube playlist. If you think the address is correct, please try again later, there may be an issue on the YouTube side.</p>
+              <p>{{l10n.accounts.incognito.modal.invalidPlaylistUrl.message}}</p>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-primary">Close</button>
+              <button type="button" class="btn btn-primary">{{l10n.accounts.incognito.modal.close}}</button>
             </div>
           </div>
 

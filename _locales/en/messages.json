@@ -59,13 +59,65 @@
     "message": "You have either canceled the authorization, or the authorization failed for some reason. If you want to add a different account than the one that was shown for authorization, you need to sign out of Chrome and sign into Chrome using the account you want to add.",
     "description": "Error message shown if the OAuth2 authorization process fails when adding a new account"
   },
-  "options_accounts_incognitoTitle": {
+  "options_accounts_incognito_Title": {
     "message": "Incognito subscriptions",
     "description": "Header of the accounts managent section in options for incognito subscriptions"
   },
-  "options_accounts_addIncognitoPlaceholder": {
+  "options_accounts_incognito_addPlaceholder": {
     "message": "add YouTube channel or playlist",
     "description": "placeholder for the 'add incognito subscription' input"
+  },
+  "options_accounts_incognito_addingSubscription": {
+    "message": "Adding the new incognito subscription...",
+    "description": "Message shown when a new incognito subscription is being added"
+  },
+  "options_accounts_incognito_apiFailure": {
+    "message": "There appears to be a communication problem with the YouTube API. Because of this, the subscription cannot be added at this moment. Please repeat your attempt later.",
+    "description": "Message shown if there is an error during communication with the YouTube API when adding an incognito subscription"
+  },
+  "options_accounts_incognito_invalidUrl_message": {
+    "message": "The address you have provided is not a valid address to a YouTube channel, user or playlist. Here are some examples of valid addresses:",
+    "description": "Message shown when an invalid YouTube channel, user or playlist URL is provided"
+  },
+  "options_accounts_incognito_invalidUrl_example1": {
+    "message": "https://www.youtube.com/channel/2SdUCC55-3iny_tLUzAk2Bud (a YouTube channel)",
+    "description": "The first example of a valid URL that can be used to add an incognito subscription"
+  },
+  "options_accounts_incognito_invalidUrl_example2": {
+    "message": "https://www.youtube.com/user/someUserName3 (a YouTube user)",
+    "description": "The second example of a valid URL that can be used to add an incognito subscription"
+  },
+  "options_accounts_incognito_invalidUrl_example3": {
+    "message": "https://www.youtube.com/playlist?list=Fkskvoa44vfdsVs563dVyxd (a YouTube playlist)",
+    "description": "The third example of a valid URL that can be used to add an incognito subscription"
+  },
+  "options_accounts_incognito_modal_close": {
+    "message": "Close",
+    "description": "label of the modal window closing button"
+  },
+  "options_accounts_incognito_modal_invalidChannelUrl_title": {
+    "message": "Invalid YouTube channel address",
+    "description": "Title of the modal window shown when an invalid channel URL is provided"
+  },
+  "options_accounts_incognito_modal_invalidChannelUrl_message": {
+    "message": "While the address you provided seems to be in a valid form, it does not appear to lead to any YouTube channel - the channel may have been closed or does not exist. If you think the address is correct, please try again later, there may be an issue on the YouTube side.",
+    "description": "Message of the modal window shown when an invalid channel URL is provided"
+  },
+  "options_accounts_incognito_modal_invalidUserUrl_title": {
+    "message": "Invalid YouTube user address",
+    "description": "Title of the modal window shown when an invalid user URL is provided"
+  },
+  "options_accounts_incognito_modal_invalidUserUrl_message": {
+    "message": "While the address you provided seems to be in a valid form, it does not appear to lead to any YouTube user - the user may have closed their account or does not exist. If you think the address is correct, please try again later, there may be an issue on the YouTube side.",
+    "description": "Message of the modal window shown when an invalid user URL is provided"
+  },
+  "options_accounts_incognito_modal_invalidPlaylistUrl_title": {
+    "message": "Invalid YouTube playlist address",
+    "description": "Title of the modal window shown when an invalid playlist URL is provided"
+  },
+  "options_accounts_incognito_modal_invalidPlaylistUrl_message": {
+    "message": "While the address you provided seems to be in a valid form, it does not appear to lead to any YouTube playlist - the playlist may have been deleted or does not exist. If you think the address is correct, please try again later, there may be an issue on the YouTube side.",
+    "description": "Message of the modal window shown when an invalid playlist URL is provided"
   },
 
   "options_videos_title": {

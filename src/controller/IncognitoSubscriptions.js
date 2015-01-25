@@ -1,4 +1,5 @@
 
+import L10n from "../L10n";
 import Subscription from "../model/Subscription";
 import Database from "../storage/Database";
 
@@ -10,7 +11,39 @@ let db = new Database();
 export default class IncognitoSubscriptions {
   constructor($scope) {
     // init localization
-    $scope.options
+    let l10nPrefix = "options_accounts_incognito_";
+    $scope.l10n = {
+      accounts: {
+        incognito: {
+          title: L10n.get(`${l10nPrefix}title`),
+          addPlaceholder: L10n.get(`${l10nPrefix}addPlaceholder`),
+          addingSubscription: L10n.get(`${l10nPrefix}addingSubscription`),
+          apiFailure: L10n.get(`${l10nPrefix}apiFailure`),
+          invalidUrl: {
+            message: L10n.get(`${l10nPrefix}invalidUrl_message`),
+            example1: L10n.get(`${l10nPrefix}invalidUrl_example1`),
+            example2: L10n.get(`${l10nPrefix}invalidUrl_example2`),
+            example3: L10n.get(`${l10nPrefix}invalidUrl_example3`)
+          },
+          modal: {
+            close: L10n.get(`${l10nPrefix}modal_close`),
+            invalidChannelUrl: {
+              title: L10n.get(`${l10nPrefix}modal_invalidChannelUrl_title`),
+              message: L10n.get(`${l10nPrefix}modal_invalidChannelUrl_message`)
+            },
+            invalidUserUrl: {
+              title: L10n.get(`${l10nPrefix}modal_invalidUserUrl_title`),
+              message: L10n.get(`${l10nPrefix}modal_invalidUserUrl_message`)
+            },
+            invalidPlaylistUrl: {
+              title: L10n.get(`${l10nPrefix}modal_invalidPlaylistUrl_title`),
+              message:
+                  L10n.get(`${l10nPrefix}modal_invalidPlaylistUrl_message`)
+            }
+          }
+        }
+      }
+    };
 
     // init and load data
 

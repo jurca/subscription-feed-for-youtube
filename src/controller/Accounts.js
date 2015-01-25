@@ -23,9 +23,6 @@ export default class Accounts {
         add: L10n.get("options_accounts_add"),
         notSignedIntoBrowser:
             L10n.get("options_accounts_notSignedIntoBrowser"),
-        incognitoTitle: L10n.get("options_accounts_incognitoTitle"),
-        addIncognitoPlaceholder:
-            L10n.get("options_accounts_addIncognitoPlaceholder"),
         authorizationFailed:
             L10n.get("options_accounts_authorizationFailed")
       }
