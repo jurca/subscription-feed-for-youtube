@@ -12,7 +12,8 @@ let application = angular.module("application", ["ngRoute", "ngAnimate"]);
 application.config(["$routeProvider", ($routeProvider) => {
   $routeProvider.when("/accounts", {
     templateUrl: "options/accounts.html",
-    controller: "Accounts"
+    controller: "Accounts",
+    controllerAs: "controller"
   }).
   when("/videos", {
     templateUrl: "options/videos.html",

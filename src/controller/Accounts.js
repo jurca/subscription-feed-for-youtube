@@ -40,8 +40,6 @@ export default class Accounts {
       }
     }, 200);
 
-    // publish the controller to the scope
-    $scope.controller = this;
     this.scope = $scope;
 
     this.accounts = [];
