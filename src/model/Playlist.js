@@ -23,6 +23,13 @@ export default class Playlist extends AbstractModel {
     this.id = null;
 
     /**
+     * The playlist name.
+     *
+     * @type {string}
+     */
+    this.name = null;
+
+    /**
      * The last moment the videos of added to this playlist have been fetched
      * from YouTube API.
      *
