@@ -69,6 +69,20 @@ export default class IncognitoSubscriptions {
      */
     this.subscriptionsLoaded = false;
 
+    /**
+     * Set to {@code true} if an incognito subscription is being added.
+     *
+     * @type {boolean}
+     */
+    this.locked = false;
+
+    /**
+     * The angular scope in the UI.
+     *
+     * @type {Object}
+     */
+    this.scope = $scope;
+
     (async () => {
       try {
         this.subscriptions = await loadSubscriptions();
@@ -87,15 +101,19 @@ export default class IncognitoSubscriptions {
    * @param {string} subscriptionUrl The URL provided by the user.
    */
   async addSubscription(subscriptionUrl: string): void {
-    if (!this.subscriptionsLoaded) {
+    if (!this.subscriptionsLoaded || this.locked) {
       return;
     }
 
     try {
+      this.locked = true;
       resolveAndAddSubscription(subscriptionUrl);
     } catch (e) {
       console.error("Failed to resolve and add an incognito subscription", e,
           e.stack);
+    } finally {
+      this.locked = false;
+      this.scope.$apply();
     }
   }
 }
