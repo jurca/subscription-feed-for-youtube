@@ -105,14 +105,18 @@ export default class IncognitoSubscriptions {
       return;
     }
 
+    let success;
     try {
       this.locked = true;
-      resolveAndAddSubscription(subscriptionUrl);
+      success = await resolveAndAddSubscription(subscriptionUrl);
     } catch (e) {
       console.error("Failed to resolve and add an incognito subscription", e,
           e.stack);
     } finally {
       this.locked = false;
+      if (success) {
+        this.scope.newSubscriptionUrl = "";
+      }
       this.scope.$apply();
     }
   }
@@ -120,7 +124,7 @@ export default class IncognitoSubscriptions {
 
 IncognitoSubscriptions.$inject = ["$scope"];
 
-async function resolveAndAddSubscription(subscriptionUrl: string): void {
+async function resolveAndAddSubscription(subscriptionUrl: string): boolean {
   let valid = isSubscriptionUrlValid(subscriptionUrl);
 
   let parsedUrl;
@@ -169,6 +173,8 @@ async function resolveAndAddSubscription(subscriptionUrl: string): void {
   }
 
   progressMessage.css("height", "0");
+
+  return !!subscription;
 }
 
 /**
