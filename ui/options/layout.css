@@ -84,6 +84,30 @@ table.table > tbody > tr > td {
   height: 6px;
 }
 
+/* modal windows */
+
+#modal-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: none;
+  z-index: 10;
+}
+
+.modal-content {
+  position: absolute;
+  display: none;
+  z-index: 11;
+}
+
+#modal-overlay.active,
+.modal-content.active {
+  display: block;
+}
+
 /* various utility classes */
 
 .top-offset {
@@ -118,11 +142,14 @@ table.table > tbody > tr > td {
   height: 0;
 }
 
-/* modified fixed container width to adjust for the sidebar menu */
+/* modified fixed container and modal width to adjust for the sidebar menu */
 
 @media (min-width: 768px) {
   .container {
     width: 544px;
+  }
+  .modal-content {
+    width: 514px;
   }
 }
 
@@ -130,10 +157,16 @@ table.table > tbody > tr > td {
   .container {
     width: 712px;
   }
+  .modal-content {
+    width: 682px;
+  }
 }
 
 @media (min-width: 1200px) {
   .container {
     width: 867px;
+  }
+  .modal-content {
+    width: 837px;
   }
 }

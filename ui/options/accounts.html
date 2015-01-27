@@ -8,7 +8,7 @@
     </div>
   </div>
 
-  <div class="row scrollable-content">
+  <div class="row scrollable-content" id="accounts-content">
     <div class="col-xs-12 fullbleed">
       <div class="container top-offset">
         <div class="row">
@@ -106,7 +106,7 @@
 
           <div class="row">
             <div class="col-xs-10 col-lg-11">
-              <input type="text" class="form-control" placeholder="{{l10n.accounts.incognito.addPlaceholder}}" ng-model="newSubscriptionUrl">
+              <input type="text" class="form-control" placeholder="{{l10n.accounts.incognito.addPlaceholder}}" ng-model="newSubscriptionUrl" id="new-subscription-url">
             </div>
             <div class="col-xs-2 col-lg-1">
               <button class="btn btn-primary full-width" ng-click="subscriptionsController.addSubscription(newSubscriptionUrl)"><span class="glyphicon glyphicon-plus"></span></button>
@@ -119,7 +119,7 @@
             </div>
           </div>
 
-          <div id="adding-subscription" class="collapsable vertically-collapsed">
+          <div id="invalid-subscription-url" class="collapsable vertically-collapsed">
             <div class="top-margined alert alert-warning text-justify">
               <p>{{l10n.accounts.incognito.invalidUrl.message}}</p>
               <ul>

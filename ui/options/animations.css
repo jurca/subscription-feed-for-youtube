@@ -60,3 +60,10 @@
 .collapsable {
   transition: 0.4s;
 }
+
+/* modal windows */
+
+#modal-overlay,
+.modal-content {
+  transition: opacity 0.2s;
+}

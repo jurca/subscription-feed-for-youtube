@@ -1,13 +1,21 @@
 
+import GapiClient from "../GapiClient";
 import L10n from "../L10n";
 import Subscription from "../model/Subscription";
+import SubscriptionType from "../model/SubscriptionType";
 import Database from "../storage/Database";
 
 const URL_VALIDATOR =
-    /https:\/\/www.youtube.com\/(playlist?|user\/|channel\/)[-_?a-zA-Z0-9&=]*/;
+    /^https:\/\/www.youtube.com\/(playlist?|user\/|channel\/)[-_?a-zA-Z0-9&=]*$/;
 
 let db = new Database();
 
+/**
+ * Controller for the management of incognito subscriptions in the options.
+ *
+ * @param {Object} $scope The scope of the options page containig the UI of the
+ *        management of incognito subscriptions.
+ */
 export default class IncognitoSubscriptions {
   constructor($scope) {
     // init localization
@@ -67,18 +75,288 @@ export default class IncognitoSubscriptions {
         this.subscriptionsLoaded = true;
         $scope.$apply();
       } catch (e) {
-        console.error(e);
+        console.error("Failed to load the incognito subscriptions", e,
+            e.stack);
       }
     })();
   }
 
+  /**
+   * Handles when user adds a new incognito subscription by providing a URL.
+   *
+   * @param {string} subscriptionUrl The URL provided by the user.
+   */
   async addSubscription(subscriptionUrl: string): void {
-    alert(subscriptionUrl);
+    if (!this.subscriptionsLoaded) {
+      return;
+    }
+
+    try {
+      resolveAndAddSubscription(subscriptionUrl);
+    } catch (e) {
+      console.error("Failed to resolve and add an incognito subscription", e,
+          e.stack);
+    }
   }
 }
 
 IncognitoSubscriptions.$inject = ["$scope"];
 
+async function resolveAndAddSubscription(subscriptionUrl: string): void {
+  let valid = isSubscriptionUrlValid(subscriptionUrl);
+
+  let parsedUrl;
+  if (valid) {
+    parsedUrl = parseUrl(subscriptionUrl);
+    if (parsedUrl.path.includes("playlist") && !parsedUrl.query.list) {
+      valid = false;
+    }
+  }
+
+  if (!valid) {
+    let messageBox = angular.element("#invalid-subscription-url");
+    if (parseInt(messageBox.css("height"), 10)) {
+      return;
+    }
+
+    messageBox.css("height", messageBox[0].scrollHeight + "px");
+    setTimeout(() => {
+      messageBox.css("height", 0);
+    }, 10000);
+    return;
+  }
+
+  let progressMessage = angular.element("#adding-subscription");
+  progressMessage.css("height", progressMessage[0].scrollHeight + "px");
+
+  let subscription;
+  try {
+    subscription = await resolveSubscription(parsedUrl);
+  } catch (e) {
+    console.error("Encountered an error during subscription URI resolution",
+        e, e.stack);
+    let errorMessage = angular.element("#incognito-api-failed");
+    errorMessage.css("height", errorMessage[0].scrollHeight + "px");
+    setTimeout(() => {
+      errorMessage.css("height", 0);
+    }, 10000);
+    return;
+  } finally {
+    progressMessage.css("height", "0");
+  }
+
+  if (subscription) {
+    console.log(subscription);
+  } else {
+    // not found, nothing to do
+  }
+}
+
+async function resolveSubscription(parsedUrl: Object) {
+  let gapi = new GapiClient();
+  let youtubeApi = await gapi.getYouTubeAPI();
+
+  switch (parsedUrl.path[0]) {
+    case "playlist":
+      return await resolvePlaylist(parsedUrl.query.list, youtubeApi);
+    case "user":
+      return await resolveUser(parsedUrl.path[1], youtubeApi);
+    case "channel":
+    default:
+      throw new Error("Unrecognized URL: " + parseUrl.source);
+  }
+}
+
+/**
+ * Resolves the specified YouTube user into a {@codelink Subscription} object
+ * using the YouTube API. The method shows the {@code invalid-user-url} modal
+ * window (and waits for it to be closed) if the playlist is not found.
+ *
+ * @param {string} username The username of the YouTube user.
+ * @param {Object} youtubeApi YouTube API accessor.
+ * @return {?Subscription} The resolved user as a {@codelink Subscription}
+ *         object or {@code null} if the user does not exist.
+ * @throws {Error} Thrown if there is an error during communication with the
+ *        YouTube API.
+ */
+async function resolveUser(username: string, youtubeApi: Object) {
+  let apiResponse = await youtubeApi.channels.list({
+    part: "id,snippet,contentDetails",
+    forUsername: username
+  });
+
+  if (apiResponse.status !== 200) {
+    console.error("YouTube API request failed", apiResponse);
+    throw new Error("YouTube API request failed with status " +
+        apiResponse.status);
+  }
+
+  if (!apiResponse.result.items.length) {
+    await showModal("invalid-user-url");
+    return null; // not found
+  }
+
+  let data = apiResponse.result.items[0];
+  let subscription = new Subscription();
+  subscription.load({
+    type: "CHANNEL",
+    playlist: data.contentDetails.relatedPlaylists.uploads,
+    channel: data.id,
+    incognito: true
+  });
+
+  return subscription;
+}
+
+/**
+ * Resolves the specified playlist into a {@codelink Subscription} object using
+ * the YouTube API. The method shows the {@code invalid-playlist-url} modal
+ * window (and waits for it to be closed) if the playlist is not found.
+ *
+ * @param {string} playlistId The ID of the playlist.
+ * @param {Object} youtubeApi YouTube API accessor.
+ * @return {?Subscription} The resolved playlist as a {@codelink Subscription}
+ *         object or {@code null} if the playlist does not exist.
+ * @throws {Error} Thrown if there is an error during communication with the
+ *         YouTube API.
+ */
+async function resolvePlaylist(playlistId: string, youtubeApi: Object) {
+  let apiResponse = await youtubeApi.playlists.list({
+    part: "snippet,contentDetails",
+    id: playlistId
+  });
+
+  if (apiResponse.status !== 200) {
+    console.error("YouTube API request failed", apiResponse);
+    throw new Error("YouTube API request failed with status " +
+        apiResponse.status);
+  }
+
+  if (!apiResponse.result.items.length) {
+    await showModal("invalid-playlist-url");
+    return null; // not found
+  }
+
+  let data = apiResponse.result.items[0];
+  let subscription = new Subscription();
+  subscription.load({
+    type: "PLAYLIST",
+    playlist: data.id,
+    channel: data.snippet.channelId,
+    incognito: true
+  });
+
+  return subscription;
+}
+
+/**
+ * Shows the modal window identified by the specified ID. The method returns
+ * once the window has been closed.
+ *
+ * @param {string} modalId The ID of the modal window root element.
+ */
+async function showModal(modalId: string) {
+  let wrapper = angular.element("#accounts-content");
+  let overlay = angular.element("#modal-overlay");
+  let modal = angular.element(`#${modalId}`);
+
+  modal.addClass("active").css("top", (wrapper[0].scrollTop + 35) + "px");
+  overlay.addClass("active").css("top", wrapper.scrollTop[0] + "px");
+
+  setTimeout(() => {
+    modal.addClass("shown");
+    overlay.addClass("shown");
+  }, 0);
+
+  overlay.click(closeHandler);
+  modal.find("button").click(closeHandler);
+  wrapper.on("scroll", scrollHandler);
+
+  let resolve;
+  return new Promise(resolveCallback => {
+    resolve = resolveCallback;
+  });
+
+  /**
+   * Callback executed when the close button or overlay is clicked, closes the
+   * modal window and overlay.
+   */
+  function closeHandler() {
+    overlay.removeClass("active shown").off();
+    modal.removeClass("active shown").find("button").off();
+    wrapper.off("scroll", scrollHandler);
+    resolve();
+  }
+
+  /**
+   * Callback executed on content scrolling, updates the position of the modal
+   * windows and overlay.
+   */
+  function scrollHandler() {
+    modal.css("top", (wrapper[0].scrollTop + 35) + "px");
+    overlay.css("top", wrapper[0].scrollTop + "px");
+  }
+}
+
+/**
+ * Parses the provided (hash-less) URL into an object with the following
+ * fields:
+ *
+ * - protocol: string - the protocol name
+ * - hostname: string - the server host name
+ * - path: string[] - path split into non-empty path parts
+ * - query: Object<string, string> - query parameters
+ * - source: string - the url that was parsed
+ */
+function parseUrl(url: string): Object {
+  let protocol = url.substring(0, url.indexOf("://"));
+  let protocolEnd = protocol.length + 3;
+  let hostname = url.substring(protocolEnd, url.indexOf("/", protocolEnd));
+  let hostnameEnd = protocolEnd + hostname.length + 1;
+  let path;
+  let queryString;
+  if (url.includes("?", hostnameEnd)) {
+    path = url.substring(hostnameEnd, url.indexOf("?", hostnameEnd));
+    queryString = url.substring(url.indexOf("?") + 1);
+  } else {
+    path = url.substring(hostnameEnd);
+    queryString = "";
+  }
+  let queryParameters = {};
+  queryString.split("&").forEach(part => {
+    let subParts = part.split("=", 2);
+    queryParameters[decodeURIComponent(subParts[0])] =
+        decodeURIComponent(subParts[1] || "");
+  });
+
+  return {
+    protocol: protocol,
+    hostname: hostname,
+    path: path.split("/").filter(part => !!part),
+    query: queryParameters,
+    source: url
+  };
+}
+
+/**
+ * Performs the basic validation of the provided YouTube URL that is to be used
+ * to add an incognito subscription.
+ *
+ * @param {string} subscriptionUrl The URL provided by the user.
+ * @return {boolean} {@code true} if the URL is valid.
+ */
+function isSubscriptionUrlValid(subscriptionUrl: string): boolean {
+  if (!URL_VALIDATOR.test(subscriptionUrl)) {
+    return false;
+  }
+
+  if (subscriptionUrl.includes("/playlist?")) {
+    return subscriptionUrl.includes("?list=") ||
+        subscriptionUrl.includes("&list=");
+  }
+
+  return true;
+}
 
 /**
  * Loads the incognito YouTube subscriptions from the database.
