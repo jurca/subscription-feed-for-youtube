@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html ng-controller="Options as options" ng-cloak>
   <head>
-    <title>{{l10n.pageTitle}}</title>
+    <title ng-bind="l10n.pageTitle">&hellip;</title>
 
     <script src="../node_modules/grunt-traceur/node_modules/traceur/bin/traceur-runtime.js"></script>
     <script data-main="../dist/ui/options/bootstrap" src="../bower_components/requirejs/require.js"></script>
