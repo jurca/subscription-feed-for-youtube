@@ -44,7 +44,8 @@ export default class Subscription extends AbstractModel {
 
     /**
      * The ID of the channel to which the subscription is made to. The field is
-     * set to {@code null} for incognito subscriptions to playlists.
+     * the ID of the channel owning the playlist for incognito subscriptions to
+     * playlists.
      *
      * @type {?string}
      */
