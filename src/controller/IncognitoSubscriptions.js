@@ -140,9 +140,8 @@ async function resolveAndAddSubscription(subscriptionUrl: string): void {
     setTimeout(() => {
       errorMessage.css("height", 0);
     }, 10000);
-    return;
-  } finally {
     progressMessage.css("height", "0");
+    return;
   }
 
   if (subscription) {
@@ -150,8 +149,19 @@ async function resolveAndAddSubscription(subscriptionUrl: string): void {
   } else {
     // not found, nothing to do
   }
+
+  progressMessage.css("height", "0");
 }
 
+/**
+ * Resolves the user, channel or playlist denoted by the provided URL.
+ *
+ * @param {Object} parsedUrl Parsed URL, as returned by the {@code parseUrl()}
+ *        function.
+ * @return {?Subscription} The resolved channel, user or playlist as a
+ *         {@codelink Subscription} instance, or {@code null} if no such
+ *         channel/user/playlist was found.
+ */
 async function resolveSubscription(parsedUrl: Object) {
   let gapi = new GapiClient();
   let youtubeApi = await gapi.getYouTubeAPI();
@@ -162,15 +172,59 @@ async function resolveSubscription(parsedUrl: Object) {
     case "user":
       return await resolveUser(parsedUrl.path[1], youtubeApi);
     case "channel":
+      return await resolveChannel(parsedUrl.path[1], youtubeApi);
     default:
       throw new Error("Unrecognized URL: " + parseUrl.source);
   }
 }
 
 /**
+ * Resolves the specified YouTube channel into a {@codelink Subscription}
+ * object using the YouTube API. The method shows the
+ * {@code invalid-channel-url} modal window (and waits for it to be closed) if
+ * the channel is not found.
+ *
+ * @param {string} channelId The ID of the YouTube channel.
+ * @param {Object} youtubeApi YouTube API accessor.
+ * @return {?Subscription} The resolved channel as a {@codelink Subscription}
+ *         object or {@code null} if the channel does not exist.
+ * @throws {Error} Thrown if there is an error during communication with the
+ *        YouTube API.
+ *
+ */
+async function resolveChannel(channelId: string, youtubeApi: Object) {
+  let apiResponse = await youtubeApi.channels.list({
+    part: "id,snippet,contentDetails",
+    id: channelId
+  });
+
+  if (apiResponse.status !== 200) {
+    console.error("YouTube API request failed", apiResponse);
+    throw new Error("YouTube API request failed with status" +
+        apiResponse.status);
+  }
+
+  if (!apiResponse.result.items.length) {
+    await showModal("invalid-channel-url");
+    return null; // not found
+  }
+
+  let data = apiResponse.result.items[0];
+  let subscription = new Subscription();
+  subscription.load({
+    type: "CHANNEL",
+    playlist: data.contentDetails.relatedPlaylists.uploads,
+    channel: data.id,
+    incognito: true
+  });
+
+  return subscription;
+}
+
+/**
  * Resolves the specified YouTube user into a {@codelink Subscription} object
  * using the YouTube API. The method shows the {@code invalid-user-url} modal
- * window (and waits for it to be closed) if the playlist is not found.
+ * window (and waits for it to be closed) if the user is not found.
  *
  * @param {string} username The username of the YouTube user.
  * @param {Object} youtubeApi YouTube API accessor.
