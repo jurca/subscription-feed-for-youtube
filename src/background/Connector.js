@@ -23,14 +23,20 @@ export default class Connector {
 
       let response;
       try {
-        response = Promise.resolve(listener(message.event, message.data));
+        response = listener(message.event, message.data);
       } catch (e) {
         response = e;
       }
 
       if (sendResponse && (response !== undefined)) {
-        sendResponse(response);
+        Promise.resolve(response).then((result) => {
+          sendResponse(result);
+        }).catch((error) => {
+          sendResponse(error);
+        });
       }
+
+      return true; // allow response to be sent asynchronously
     });
   }
 
