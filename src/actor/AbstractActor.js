@@ -25,8 +25,8 @@ const FIELDS = Object.freeze({
  *
  * <pre>
  * export default class ExampleActor extends AbstractActor {
- *   constructor(eventBus: AbstractEventBus) {
- *     super(eventBus);
+ *   constructor() {
+ *     super();
  *   }
  *
  *   onApplicationSub_systemStart(event: string, data, callback: Function) {
