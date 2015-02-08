@@ -25,14 +25,19 @@ export default class Connector {
       try {
         response = listener(message.event, message.data);
       } catch (e) {
-        response = e;
+        response = Promise.reject(e);
       }
 
       if (sendResponse && (response !== undefined)) {
         Promise.resolve(response).then((result) => {
           sendResponse(result);
         }).catch((error) => {
-          sendResponse(error);
+          sendResponse({
+            error: {
+              message: error.message,
+              stack: error.stack
+            }
+          });
         });
       }
 
@@ -79,8 +84,8 @@ export default class Connector {
           event: event,
           data: data
         }, {}, (response) => {
-          if (response instanceof Error) {
-            reject(response);
+          if ((response instanceof Object) && ("error" in response)) {
+            reject(response.error);
           } else {
             resolve(response);
           }
