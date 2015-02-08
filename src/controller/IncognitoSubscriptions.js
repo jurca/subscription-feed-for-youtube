@@ -1,6 +1,7 @@
 
 import GapiClient from "../GapiClient";
 import L10n from "../L10n";
+import Connector from "../background/Connector";
 import Subscription from "../model/Subscription";
 import SubscriptionType from "../model/SubscriptionType";
 import Database from "../storage/Database";
@@ -141,10 +142,7 @@ async function resolveAndAddSubscription(subscriptionUrl: string): boolean {
       return;
     }
 
-    messageBox.css("height", messageBox[0].scrollHeight + "px");
-    setTimeout(() => {
-      messageBox.css("height", 0);
-    }, 10000);
+    showMessage(messageBox, 10000);
     return;
   }
 
@@ -157,17 +155,20 @@ async function resolveAndAddSubscription(subscriptionUrl: string): boolean {
   } catch (e) {
     console.error("Encountered an error during subscription URI resolution",
         e, e.stack);
-    let errorMessage = angular.element("#incognito-api-failed");
-    errorMessage.css("height", errorMessage[0].scrollHeight + "px");
-    setTimeout(() => {
-      errorMessage.css("height", 0);
-    }, 10000);
+    showMessage(angular.element("#incognito-api-failed"), 10000);
     progressMessage.css("height", "0");
     return;
   }
 
   if (subscription) {
-    console.log(subscription);
+    try {
+      await Connector.ask("incognito-subscriptions.add-requested",
+          subscription.serialize());
+    } catch (e) {
+      console.error("Adding a resolved subscription failed", subscription, e,
+          e.stack);
+      showMessage(angular.element("#incognito-api-failed"), 10000);
+    }
   } else {
     // not found, nothing to do
   }
@@ -175,6 +176,18 @@ async function resolveAndAddSubscription(subscriptionUrl: string): boolean {
   progressMessage.css("height", "0");
 
   return !!subscription;
+}
+
+function showMessage(messageElement, timeout: number) {
+  if (timeout <= 0) {
+    throw new Error(`The timeout must be positive, ${timeout} provided`);
+  }
+
+  let element = angular.element(messageElement);
+  element.css("height", element[0].scrollHeight + "px");
+  setTimeout(() => {
+    element.css("height", 0);
+  }, timeout);
 }
 
 /**

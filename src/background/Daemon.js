@@ -1,12 +1,16 @@
 
 import EnumFactory from "../EnumFactory";
 import Timer from "../actor/Timer";
+import IncognitoSubscriptionManager from
+    "../actor/IncognitoSubscriptionManager";
+import Connector from "../background/Connector";
 import ActorEventBus from "../event-bus/ActorEventBus";
 import Configuration from "../storage/Configuration";
 import Database from "../storage/Database";
 
 const ACTORS = [
-  Timer
+  Timer,
+  IncognitoSubscriptionManager
 ];
 
 /**
@@ -78,6 +82,20 @@ export default class Daemon {
       let actor = new actorClass();
       this[FIELDS.eventBus].registerActor(actor);
     }
+
+    console.log("Enabling connection of other views to the event bus");
+
+    Connector.addListener(async (event, data) => {
+      return await new Promise((resolve, reject) => {
+        this[FIELDS.eventBus].dispatch(event, data, (response) => {
+          if (response instanceof Error) {
+            reject(response);
+          } else {
+            resolve(response);
+          }
+        });
+      });
+    });
 
     console.log("Daemon initialization successful");
   }
