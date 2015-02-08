@@ -23,7 +23,6 @@
     "default_popup": "ui/popup.html"
   },
 
-  "options_page": "ui/options.html",
   "options_ui": {
     "page": "ui/options.html"
   },
