@@ -109,12 +109,19 @@ export default class AbstractEventBus {
 
     let path = eventName.split(".");
     let listeners = getListeners(this[FIELDS.listeners], path);
+    let listenerCount = listeners.length;
     executeListeners(listeners, eventName, data, callback);
 
     while (path.length) {
       path.pop();
       listeners = getListeners(this[FIELDS.listeners], path.concat("*"));
+      listenerCount += listeners.length;
       executeListeners(listeners, eventName, data, callback);
+    }
+
+    if (!listenerCount) {
+      console.warn(`The event ${eventName} was not captured by any listener`,
+          data);
     }
   }
 }
