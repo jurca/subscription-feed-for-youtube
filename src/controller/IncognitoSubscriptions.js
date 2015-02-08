@@ -466,7 +466,7 @@ async function loadSubscriptions(): Array {
     cursorRequest.onsuccess = () => {
       let cursor = cursorRequest.result;
 
-      while (cursor && cursor.key !== undefined) {
+      if (cursor) {
         let subscription = new Subscription();
         subscription.load(cursor.value);
 
@@ -475,9 +475,9 @@ async function loadSubscriptions(): Array {
         }
 
         cursor.continue();
+      } else {
+        resolve(subscriptions);
       }
-
-      resolve(subscriptions);
     };
     cursorRequest.onerror = () => reject(cursorRequest.error);
   });
