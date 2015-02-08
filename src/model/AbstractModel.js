@@ -64,7 +64,7 @@ export default class AbstractModel {
           "specify the primary key field.");
     }
 
-    for (field of Object.keys(this)) {
+    for (let field of Object.keys(this)) {
       if (primaryKeyGenerated && (field === primaryKey) && !this[field]) {
         continue;
       }
