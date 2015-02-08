@@ -86,8 +86,8 @@ export default class AbstractActor {
    *        throws an error, or the call times out.
    */
   async ask(event: string, data, timeout: number = 15000) {
-    if (timeout < 0) {
-      throw new Error("The timeout must not be negative");
+    if (timeout <= 0) {
+      throw new Error("The timeout must be positive");
     }
 
     return await new Promise((resolve, reject) => {
@@ -100,11 +100,10 @@ export default class AbstractActor {
           }
         });
       }, 0);
-      if (timeout > 0) {
-        setTimeout(() => {
-          reject(new Error(`The call exceeded the timeout ${timeout} ms`));
-        }, timeout);
-      }
+
+      setTimeout(() => {
+        reject(new Error(`The call exceeded the timeout ${timeout} ms`));
+      }, timeout);
     });
   }
 
