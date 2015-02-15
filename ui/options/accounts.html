@@ -115,7 +115,9 @@
                   id="new-subscription-url">
             </div>
             <div class="col-xs-2 col-lg-1">
-              <button class="btn btn-primary full-width" ng-click="subscriptionsController.addSubscription(newSubscriptionUrl)"><span class="glyphicon glyphicon-plus"></span></button>
+              <button class="btn btn-primary full-width" ng-disabled="!newSubscriptionUrl" ng-click="subscriptionsController.addSubscription(newSubscriptionUrl)">
+                <span class="glyphicon glyphicon-plus"></span>
+              </button>
             </div>
           </div>
 
