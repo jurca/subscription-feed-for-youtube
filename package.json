@@ -12,17 +12,14 @@
     "extension",
     "youtube"
   ],
-  "author": "Martin Jurča",
-  "license": "MIT",
+  "author": "Martin Jurča <mjurca@centrum.cz>",
+  "license": "ISC",
   "bugs": {
     "url": "https://github.com/jurca/subscription-feed-for-youtube/issues"
   },
   "homepage": "https://github.com/jurca/subscription-feed-for-youtube",
   "dependencies": {
-    "grunt": "^0.4.5",
-    "grunt-traceur": "^0.4.0"
   },
   "devDependencies": {
-    "grunt-contrib-watch": "^0.6.1"
   }
 }

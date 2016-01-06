@@ -29,22 +29,24 @@
 
   "background": {
     "scripts": [
-      "node_modules/grunt-traceur/node_modules/traceur/bin/traceur-runtime.js",
-      "bower_components/requirejs/require.js",
-      "src/requirejs-config.js",
-      "src/background/bootstrap.js"
-    ]
+    ],
+    "persistent": false
   },
 
-  "content_security_policy": "script-src 'self' 'unsafe-eval' https://apis.google.com; object-src 'self'",
   "permissions": [
+    "alarms",
     "identity",
     "identity.email",
     "storage",
-    "tabs",
     "unlimitedStorage",
-    "https://apis.google.com/"
+    "https://www.googleapis.com/"
   ],
+  "optional_permissions": [
+    "notifications",
+    "tabs"
+  ],
+
+  "minimum_chrome_version": "47",
 
   "oauth2": {
     "client_id": "512970322971-990i5ci6u9vc7fhtg8hvn7jk02u87ehc.apps.googleusercontent.com",

@@ -19,7 +19,7 @@ module.exports = function(grunt) {
           src: ['**/*.js'],
           dest: 'dist'
         }]
-      },
+      }
     },
     watch: {
       files: "src/**/*.js",
