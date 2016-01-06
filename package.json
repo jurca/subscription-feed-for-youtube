@@ -2,6 +2,7 @@
   "name": "subscription-feed-for-youtube",
   "version": "2.0.0",
   "description": "Google Chrome extension for monitoring YouTube channels for new videos.",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/jurca/subscription-feed-for-youtube.git"
@@ -21,5 +22,9 @@
   "dependencies": {
   },
   "devDependencies": {
+  },
+  "engines": {
+    "node": ">=5.3.0",
+    "npm": "~3.3.12"
   }
 }
