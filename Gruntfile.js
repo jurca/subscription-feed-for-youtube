@@ -8,11 +8,7 @@ module.exports = (grunt) => {
           "dist/background.js": ["src/background/bootstrap.js"]
         },
         options: {
-          transform: [["babelify", {
-            plugins: [
-              "transform-es2015-modules-commonjs"
-            ]
-          }]]
+          transform: ["babelify"]
         }
       }
     },
