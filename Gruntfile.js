@@ -1,38 +1,30 @@
-module.exports = function(grunt) {
+module.exports = (grunt) => {
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
-    traceur: {
-      options: {
-        experimental: true,
-        modules: "amd",
-        moduleNames: false,
-        types: true,
-        typeAssertions: true,
-        typeAssertionModule: "assert",
-        annotations: true,
-        asyncFunctions: true
-      },
-      build: {
-        files: [{
-          expand: true,
-          cwd: 'src',
-          src: ['**/*.js'],
-          dest: 'dist'
-        }]
+    pkg: grunt.file.readJSON("package.json"),
+
+    browserify: {
+      dist: {
+        files: {
+          "dist/background.js": ["src/background/bootstrap.js"]
+        },
+        options: {
+          transform: [["babelify", {
+            plugins: [
+              "transform-es2015-modules-commonjs"
+            ]
+          }]]
+        }
       }
     },
+
     watch: {
       files: "src/**/*.js",
-      tasks: "traceur"
+      tasks: "browserify"
     }
-  });
+  })
 
-  // Load the "traceur" task
-  grunt.loadNpmTasks('grunt-traceur');
-
-  // Load the "watch" task
-  grunt.loadNpmTasks('grunt-contrib-watch');
+  require("load-grunt-tasks")(grunt)
 
   // Default task(s)
-  grunt.registerTask('default', ['traceur']);
-};
+  grunt.registerTask("default", ["browserify"])
+}
