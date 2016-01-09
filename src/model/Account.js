@@ -23,7 +23,7 @@ export default class Account extends AbstractEntity {
   /**
    * The name of the Google account (currently the e-mail address).
    */
-  name: string
+  title: string
 
   /**
    * The state of the account, must be one of the {@linkcode AccountState.*}
@@ -40,10 +40,10 @@ export default class Account extends AbstractEntity {
   /**
    * ID the of playlist that contains the watch history of the account.
    */
-  watchHistory: string
+  watchHistoryPlaylistId: string
 
   /**
    * ID of the "watch later" playlist for this account.
    */
-  watchLater: string
+  watchLaterPlaylistId: string
 }

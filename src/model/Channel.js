@@ -22,6 +22,12 @@ export default class Channel extends AbstractEntity {
   /**
    * The thumbnails of the channel. The keys are quality description strings,
    * the values are thumbnail URLs.
+   *
+   * The thumbnail qualities, sorted from the lowest to the highest, with their
+   * dimensions (at the moment of writing this) attached, are as follows:
+   *
+   * - {@code default} - 88 &times; 88 pixels
+   * - {@code high} - 240 &times; 240 pixels
    */
   thumbnails: Object<string, string>
 
@@ -29,10 +35,10 @@ export default class Channel extends AbstractEntity {
    * The Google account IDs of the accounts that are subscribed to this
    * channel.
    */
-  accounts: Array<string>
+  accountIds: Array<string>
 
   /**
    * IDs of the incognito subscriptions to this channel.
    */
-  incognitoSubscriptions: Array<number>
+  incognitoSubscriptionIds: Array<number>
 }

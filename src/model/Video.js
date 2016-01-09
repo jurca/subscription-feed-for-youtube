@@ -29,6 +29,15 @@ export default class Video extends AbstractEntity {
 
   /**
    * Thumbnails of the video. The keys are quality description strings.
+   *
+   * The thumbnail qualities, sorted from the lowest to the highest, with their
+   * dimensions (at the moment of writing this) attached, are as follows:
+   *
+   * - {@code default} - 120 &times; 90
+   * - {@code medium} - 320 &times; 180
+   * - {@code high} - 480 &times; 360
+   * - {@code standard} - 640 &times; 480
+   * - {@code maxres} - 1280 &times; 720
    */
   thumbnails: Object<string, {url: string, width: number, height: number}>
 
@@ -45,17 +54,17 @@ export default class Video extends AbstractEntity {
   /**
    * ID of the YouTube channel on which the video was uploaded.
    */
-  channel: string
+  channelId: string
 
   /**
    * Google account IDs of the accounts from which the video is available.
    */
-  accounts: Array<string>
+  accountIds: Array<string>
 
   /**
    * IDs of incognito subscriptions from which the video is available.
    */
-  incognitoSubscriptions: Array<number>
+  incognitoSubscriptionIds: Array<number>
 
   /**
    * Set to {@code 1} if this video has already been watched, marked as watched
