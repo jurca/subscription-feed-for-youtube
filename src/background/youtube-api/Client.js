@@ -149,7 +149,7 @@ export default class Client {
       }
 
       return !!newVideosCount
-    })
+    }, authorized)
     let newVideos = videos.filter(video => !knownVideoIds.has(video.id))
     let videoEntities = new Map()
     for (let video of newVideos) {
