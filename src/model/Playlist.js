@@ -43,4 +43,15 @@ export default class Playlist extends AbstractEntity {
    * The thumbnails may change with every video added to the playlist.
    */
   thumbnails: Object<string, {url: string, width: number, height: number}>
+
+  /**
+   * The Google account IDs of the accounts that are subscribed to this
+   * playlist.
+   */
+  accountIds: Array<string>
+
+  /**
+   * IDs of the incognito subscriptions to this playlist.
+   */
+  incognitoSubscriptionIds: Array<number>
 }
