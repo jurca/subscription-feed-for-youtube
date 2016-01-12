@@ -6,6 +6,7 @@ import Playlist from "../../model/Playlist"
 import Subscription from "../../model/Subscription"
 import SubscriptionState from "../../model/SubscriptionState"
 import SubscriptionType from "../../model/SubscriptionType"
+import Video from "../../model/Video"
 
 const PRIVATE = Object.freeze({
   apiClient: Symbol("apiClient")
@@ -124,5 +125,51 @@ export default class Client {
     }
 
     return updated
+  }
+
+  async getNewPlaylistVideos(playlist: Playlist, knownVideos: Array<Video>,
+      authorized: boolean = false): Array<Video> {
+    if (knownVideos.length === playlist.videoCount) {
+      return []
+    }
+
+    let knownVideoIds = new Set(knownVideos.map(video => video.id))
+    let newVideosCount = playlist.videoCount - knownVideos.length
+
+    let apiClient = this[PRIVATE.apiClient]
+    let videos = await apiClient.getPlaylistVideos(playlist.id, (videos) => {
+      for (let video of videos) {
+        let videoId = video.resourceId.videoId
+        if (knownVideoIds.has(videoId)) {
+          newVideosCount--
+        }
+        if (!newVideosCount) {
+          break
+        }
+      }
+
+      return !!newVideosCount
+    })
+    let newVideos = videos.filter(video => !knownVideoIds.has(video.id))
+    let videoEntities = new Map()
+    for (let video of newVideos) {
+      videoEntities.set(video.id, new Video(Object.assign({}, video, {
+        duration: -1,
+        viewCount: -1,
+        accountIds: playlist.accountIds.slice(),
+        incognitoSubscriptionIds: playlist.incognitoSubscriptionIds.slice(),
+        watched: 0
+      })))
+    }
+
+    let newVideoIds = Array.from(videoEntities.keys())
+    let metadata = await apiClient.getVideosMetaData(newVideoIds)
+    for (let data of metadata) {
+      let entity = videoEntities.get(data.id)
+      entity.duration = data.duration
+      entity.viewCount = data.viewCount
+    }
+
+    return Array.from(videoEntities.values())
   }
 }
