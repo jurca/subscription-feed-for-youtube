@@ -172,4 +172,30 @@ export default class Client {
 
     return Array.from(videoEntities.values())
   }
+
+  async updateVideoViewCounts(videos: Array<Video>): Array<Video> {
+    let videosMap = new Map()
+    for (let video of videos) {
+      videosMap.set(video.id, video)
+    }
+
+    let videoIds = Array.from(videosMap.keys())
+    let videosMetaData = await this[PRIVATE.apiKey].getVideosMetaData(videoIds)
+
+    let updated = []
+    for (let videoMetaData of videosMetaData) {
+      let video = videosMap.get(videoMetaData.id)
+      if (video.viewCount !== videoMetaData.viewCount) {
+        video.videoCount = videoMetaData.viewCount
+        updated.push(video)
+      }
+    }
+
+    return updated
+  }
+
+  async addVideoToPlaylist(video: Video, playlist: Playlist): void {
+    let apiClient = this[PRIVATE.apiClient]
+    return await apiClient.addPlaylistItem(playlist.id, video.id)
+  }
 }
