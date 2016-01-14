@@ -2,6 +2,7 @@
 import YouTubeApiClient from "sf4yt-gapi-client/es2015/YouTubeApiClient"
 import Account from "../../model/Account"
 import AccountState from "../../model/AccountState"
+import Channel from "../../model/Channel"
 import Playlist from "../../model/Playlist"
 import Subscription from "../../model/Subscription"
 import SubscriptionState from "../../model/SubscriptionState"
@@ -31,7 +32,7 @@ export default class Client {
   }
 
   async getSubscriptions(account: Account, authorized: boolean = false):
-      Array<Subscription> {
+      Array<[Subscription, Channel]> {
     let apiClient = this[PRIVATE.apiClient]
     let channels = await apiClient.getSubscribedChannels(
       account.channelId,
@@ -52,15 +53,24 @@ export default class Client {
     }
 
     return channels.map((channel) => {
-      return new Subscription({
-        type: SubscriptionType.CHANNEL,
-        playlistId: channel.uploadsPlaylistId,
-        channelId: channel.id,
-        state: SubscriptionState.ACTIVE,
-        lastError: null,
-        accountId: account.id,
-        isIncognito: 0
-      })
+      return [
+        new Subscription({
+          type: SubscriptionType.CHANNEL,
+          playlistId: channel.uploadsPlaylistId,
+          channelId: channel.id,
+          state: SubscriptionState.ACTIVE,
+          lastError: null,
+          accountId: account.id,
+          isIncognito: 0
+        }),
+        new Channel({
+          id: channel.id,
+          title: channel.title,
+          thumbnails: channel.thumbnails,
+          accountIds: [account.id],
+          incognitoSubscriptionIds: []
+        })
+      ]
     })
   }
 
