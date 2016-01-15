@@ -67,10 +67,34 @@ export default class Client {
           id: channel.id,
           title: channel.title,
           thumbnails: channel.thumbnails,
+          uploadsPlaylistId: channel.uploadsPlaylistId,
           accountIds: [account.id],
           incognitoSubscriptionIds: []
         })
       ]
+    })
+  }
+
+  async getUploadsPlaylists(channels: Array<Channel>): Array<Playlist> {
+    let playlistToChannel = new Map()
+    for (let channel of channels) {
+      playlistToChannel.set(channel.uploadsPlaylistId, channel)
+    }
+
+    let playlistIds = channels.map(channel => channel.uploadsPlaylistId)
+    let playlists = await this[PRIVATE.apiClient].getPlaylists(playlistIds)
+
+    return playlists.map((playlist) => {
+      let channel = playlistToChannel.get(playlist.id)
+      return new Playlist({
+        id: playlist.id,
+        title: playlist.title,
+        description: playlist.description,
+        videoCount: playlist.videoCount,
+        thumbnails: playlist.videoCount,
+        accountIds: channel.accountIds,
+        incognitoSubscriptionIds: []
+      })
     })
   }
 

@@ -32,6 +32,11 @@ export default class Channel extends AbstractEntity {
   thumbnails: Object<string, string>
 
   /**
+   * ID of the playlist containing the uploaded videos.
+   */
+  uploadsPlaylistId: string
+
+  /**
    * The Google account IDs of the accounts that are subscribed to this
    * channel.
    */
