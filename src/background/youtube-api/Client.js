@@ -92,7 +92,7 @@ export default class Client {
         description: playlist.description,
         videoCount: playlist.videoCount,
         thumbnails: playlist.videoCount,
-        accountIds: channel.accountIds,
+        accountIds: channel.accountIds.slice(),
         incognitoSubscriptionIds: []
       })
     })
