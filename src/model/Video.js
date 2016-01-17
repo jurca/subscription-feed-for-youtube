@@ -72,4 +72,11 @@ export default class Video extends AbstractEntity {
    * {@code 0} otherwise.
    */
   watched: number
+
+  /**
+   * Set to {@code 1} if at least one YouTube account subscription or incognito
+   * subscription from which this video originated is currently enabled,
+   * otherwise set to {@code 0}.
+   */
+  isEnabled: number
 }
