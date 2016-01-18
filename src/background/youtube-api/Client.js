@@ -149,16 +149,23 @@ export default class Client {
     let apiClient = this[PRIVATE.apiClient]
     let videoCounts = await apiClient.getPlaylistVideoCounts(playlistIds)
 
-    let updated = []
+    let updated = new Map()
     for (let videoCount of videoCounts) {
       let playlist = playlistsMap.get(videoCount.id)
       if (playlist.videoCount !== videoCount.videoCount) {
         playlist.videoCount = videoCount.videoCount
-        updated.push(playlist)
+        updated.set(playlist.id, playlist)
       }
     }
 
-    return updated
+    let updatedIds = Array.from(updated.keys())
+    let newThumbnails = await apiClient.getPlaylistThumbnails(updatedIds)
+    for (let thumbnails of newThumbnails) {
+      let playlist = updated.get(thumbnails.id)
+      playlist.thumbnails = thumbnails.thumbnails
+    }
+
+    return Array.from(updated.values())
   }
 
   async getNewPlaylistVideos(playlist: Playlist, knownVideos: Array<Video>,
