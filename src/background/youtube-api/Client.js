@@ -98,6 +98,7 @@ export default class Client {
     })
   }
 
+  // TODO: return the channel and playlist
   async resolveIncognitoSubscription(url: string): Subscription {
     let validator = /^https:\/\/www\.youtube\.com\/(channel\/|user\/|playlist\?(.+&)?list=|watch\?(.+&)?list=).+$/
     if (!validator.test(url)) {
@@ -138,6 +139,16 @@ export default class Client {
     })
   }
 
+  /**
+   * Filters the provided playlists for playlists that contain new (or at least
+   * more than they used to) videos. The playlists matching the criteria will
+   * have their video counts and thumbnails updated.
+   *
+   * This method cannot be used with private playlists.
+   *
+   * @param playlists The playlists to check for new videos.
+   * @return The updated playlists that contain new videos.
+   */
   async getPlaylistsWithNewContent(playlists: Array<Playlist>):
       Array<Playlist> {
     let playlistsMap = new Map()
@@ -168,6 +179,19 @@ export default class Client {
     return Array.from(updated.values())
   }
 
+  /**
+   * Fetches the new videos from the specified playlist that are not among the
+   * specified videos.
+   *
+   * @param playlist The playlist from which the videos should be fetched.
+   * @param knownVideos The videos that are already known to be present in the
+   *        playlist.
+   * @param authorized Flag signalling whether a request authorized by the
+   *        current user should be made. This is required for fetching videos
+   *        from private playlists, for example the user's watch history
+   *        playlist or the user's watch later playlist.
+   * @return The new videos.
+   */
   async getNewPlaylistVideos(playlist: Playlist, knownVideos: Array<Video>,
       authorized: boolean = false): Array<Video> {
     if (knownVideos.length === playlist.videoCount) {
@@ -214,6 +238,13 @@ export default class Client {
     return Array.from(videoEntities.values())
   }
 
+  /**
+   * Updates the video views count of the provided videos. This method cannot
+   * be used with private videos.
+   *
+   * @param videos The videos that should be checked for having more views.
+   * @return The videos that have received more views.
+   */
   async updateVideoViewCounts(videos: Array<Video>): Array<Video> {
     let videosMap = new Map()
     for (let video of videos) {
@@ -235,6 +266,16 @@ export default class Client {
     return updated
   }
 
+  /**
+   * Adds the specified video to the specified playlist. The video will be
+   * added at the beginning of the playlist.
+   *
+   * This method requires the current user to have a valid OAuth2 authorization
+   * token available.
+   *
+   * @param video The video to add to the playlist.
+   * @param playlist The playlist to which the video should be added.
+   */
   async addVideoToPlaylist(video: Video, playlist: Playlist): void {
     let apiClient = this[PRIVATE.apiClient]
     return await apiClient.addPlaylistItem(playlist.id, video.id)
