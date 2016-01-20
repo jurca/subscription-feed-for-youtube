@@ -99,7 +99,7 @@ export default class Client {
   }
 
   // TODO: return the channel and playlist
-  async resolveIncognitoSubscription(url: string): Subscription {
+  async resolveIncognitoSubscription(url: string): [Subscription, Playlist] {
     let validator = /^https:\/\/www\.youtube\.com\/(channel\/|user\/|playlist\?(.+&)?list=|watch\?(.+&)?list=).+$/
     if (!validator.test(url)) {
       throw new Error("Invalid user, channel or playlist URL")
@@ -119,24 +119,37 @@ export default class Client {
 
     let playlistMatcher = /^https:\/\/www\.youtube\.com\/(?:playlist|watch)\?(?:.+&)?list=([^&]+)(?:&.+)?$/
     let playlistId
+    let playlistInfo
     if (channelId) {
       subscriptionType = SubscriptionType.CHANNEL
       playlistId = await apiClient.getUploadsPlaylistId(channelId)
+      playlistInfo = await apiClient.getPlaylistInfo(playlistId)
     } else {
       playlistId = decodeURIComponent(playlistMatcher.exec(url)[1])
-      let playlistInfo = await apiClient.getPlaylistInfo(playlistId)
+      playlistInfo = await apiClient.getPlaylistInfo(playlistId)
       channelId = playlistInfo.channelId
     }
 
-    return new Subscription({
-      type: subscriptionType,
-      playlistId,
-      channelId,
-      state: SubscriptionState.ACTIVE,
-      lastError: null,
-      accountId: null,
-      isIncognito: 1
-    })
+    return [
+      new Subscription({
+        type: subscriptionType,
+        playlistId,
+        channelId,
+        state: SubscriptionState.ACTIVE,
+        lastError: null,
+        accountId: null,
+        isIncognito: 1
+      }),
+      new Playlist({
+        id: playlistInfo.id,
+        title: playlistInfo.title,
+        description: playlistInfo.description,
+        videoCount: playlistInfo.videoCount,
+        thumbnails: playlistInfo.thumbnails,
+        accountIds: [],
+        incognitoSubscriptionIds: []
+      })
+    ]
   }
 
   /**
