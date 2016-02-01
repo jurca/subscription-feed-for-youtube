@@ -217,7 +217,7 @@ export default class Client {
     let apiClient = this[PRIVATE.apiClient]
     let videos = await apiClient.getPlaylistVideos(playlist.id, (videos) => {
       for (let video of videos) {
-        let videoId = video.resourceId.videoId
+        let videoId = video.id
         if (knownVideoIds.has(videoId)) {
           newVideosCount--
         }
