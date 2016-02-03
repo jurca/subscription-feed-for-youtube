@@ -5,6 +5,8 @@
     "transform-class-properties",
     "transform-decorators",
 
-    "transform-flow-strip-types"
+    "transform-flow-strip-types",
+
+    "transform-async-to-generator"
   ]
 }

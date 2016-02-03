@@ -21,6 +21,7 @@
   "homepage": "https://github.com/jurca/subscription-feed-for-youtube",
   "dependencies": {},
   "devDependencies": {
+    "babel-plugin-transform-async-to-generator": "^6.4.6",
     "babel-plugin-transform-class-properties": "^6.4.0",
     "babel-plugin-transform-decorators": "^6.4.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.4.0",
