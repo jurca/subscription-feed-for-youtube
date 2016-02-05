@@ -1,6 +1,8 @@
 
 /**
  * Possible states of a subscription to a YouTube channel or playlist.
+ *
+ * @enum {string}
  */
 export default Object.freeze({
   /**

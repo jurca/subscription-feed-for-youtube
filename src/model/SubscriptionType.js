@@ -1,6 +1,8 @@
 
 /**
  * Types of subscriptions.
+ *
+ * @enum {string}
  */
 export default Object.freeze({
   /**

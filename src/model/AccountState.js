@@ -1,6 +1,8 @@
 
 /**
  * Enum containing the possible states of a user's YouTube account.
+ *
+ * @enum {string}
  */
 export default Object.freeze({
   /**
