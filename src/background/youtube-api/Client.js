@@ -9,15 +9,39 @@ import SubscriptionState from "../../model/SubscriptionState"
 import SubscriptionType from "../../model/SubscriptionType"
 import Video from "../../model/Video"
 
+/**
+ * Private field symbols
+ *
+ * @type {Object<string, symbol>}
+ */
 const PRIVATE = Object.freeze({
-  apiClient: Symbol("apiClient")
+  apiClient: Symbol("apiClient"),
+  toIncognitoSubscriptionInfo: Symbol("toIncognitoSubscriptionInfo")
 })
 
+/**
+ * Client for communication with the YouTube API using the identity of a single
+ * specific Google user.
+ */
 export default class Client {
+  /**
+   * Initializes the client.
+   *
+   * @param apiClient The YouTube API client to use for communication with the
+   *        YouTube data API.
+   */
   constructor(apiClient: YouTubeApiClient) {
     this[PRIVATE.apiClient] = apiClient
   }
 
+  /**
+   * Retrieves the information about the specified YouTube account, or the
+   * account that is currently authorized using OAuth2.
+   *
+   * @param accountId The current user's Google account ID.
+   * @param channelId The YouTube channelID.
+   * @return An entity representing the YouTube account.
+   */
   async getAccountInfo(accountId: string, channelId: ?string = null): Account {
     let accountData = await this[PRIVATE.apiClient].getAccountInfo(channelId)
     return new Account({
@@ -31,6 +55,16 @@ export default class Client {
     })
   }
 
+  /**
+   * Fetches the channels to which the specified YouTube account is subscribed.
+   *
+   * @param account The YouTube account for which the subscribed channels
+   *        should be retrieved.
+   * @param authorized Whether or not OAuth2 authorization should be used to
+   *        fetch the list of subscribed channels.
+   * @return The channel and subscription entities representing the channels to
+   *         which the specified account is subscribed to.
+   */
   async getSubscriptions(account: Account, authorized: boolean = false):
       Array<[Subscription, Channel]> {
     let apiClient = this[PRIVATE.apiClient]
@@ -75,6 +109,12 @@ export default class Client {
     })
   }
 
+  /**
+   * Fetches the playlist of uploaded videos for every specified channel.
+   *
+   * @param channels The channels for which the playlists should be fetched.
+   * @return The playlists of videos uploaded by the specified channels.
+   */
   async getUploadsPlaylists(channels: Array<Channel>): Array<Playlist> {
     let playlistToChannel = new Map()
     for (let channel of channels) {
@@ -98,9 +138,16 @@ export default class Client {
     })
   }
 
-  // TODO: return the channel and playlist
-  async resolveIncognitoSubscription(url: string): [Subscription, Playlist] {
-    let validator = /^https:\/\/www\.youtube\.com\/(channel\/|user\/|playlist\?(.+&)?list=|watch\?(.+&)?list=).+$/
+  /**
+   * Resolves the provided URL to an incognito subscription.
+   *
+   * @param url The URL to a YouTube channel, user or a playlist.
+   * @return Entities representing the subscription.
+   */
+  async resolveIncognitoSubscription(url: string):
+      [Subscription, Playlist, Channel] {
+    let validator =
+        /^https:\/\/www\.youtube\.com\/(channel\/|user\/|playlist\?(.+&)?list=|watch\?(.+&)?list=).+$/
     if (!validator.test(url)) {
       throw new Error("Invalid user, channel or playlist URL")
     }
@@ -117,7 +164,8 @@ export default class Client {
       channelId = decodeURIComponent(channelMatcher.exec(url)[1])
     }
 
-    let playlistMatcher = /^https:\/\/www\.youtube\.com\/(?:playlist|watch)\?(?:.+&)?list=([^&]+)(?:&.+)?$/
+    let playlistMatcher =
+        /^https:\/\/www\.youtube\.com\/(?:playlist|watch)\?(?:.+&)?list=([^&]+)(?:&.+)?$/
     let playlistId
     let playlistInfo
     if (channelId) {
@@ -130,26 +178,13 @@ export default class Client {
       channelId = playlistInfo.channelId
     }
 
-    return [
-      new Subscription({
-        type: subscriptionType,
-        playlistId,
-        channelId,
-        state: SubscriptionState.ACTIVE,
-        lastError: null,
-        accountId: null,
-        isIncognito: 1
-      }),
-      new Playlist({
-        id: playlistInfo.id,
-        title: playlistInfo.title,
-        description: playlistInfo.description,
-        videoCount: playlistInfo.videoCount,
-        thumbnails: playlistInfo.thumbnails,
-        accountIds: [],
-        incognitoSubscriptionIds: []
-      })
-    ]
+    let channelInfo = await apiClient.getChannelInfo(channelId)
+
+    return this[PRIVATE.toIncognitoSubscriptionInfo](
+      subscriptionType,
+      channelInfo,
+      playlistInfo
+    )
   }
 
   /**
@@ -292,5 +327,51 @@ export default class Client {
   async addVideoToPlaylist(video: Video, playlist: Playlist): void {
     let apiClient = this[PRIVATE.apiClient]
     return await apiClient.addPlaylistItem(playlist.id, video.id)
+  }
+
+  /**
+   * Constructs the entities representing an incognito subscription from the
+   * provided information.
+   *
+   * @param subscriptionType The type of the incognito subscription - one of
+   *        the.
+   * @param playlistInfo Information fetched about the playlist related to the
+   *        subscription.
+   * @param channelInfo Information fetched about the channel related to the
+   *        subscription.
+   * @return An array of entities representing the details of an incognito
+   *         subscription.
+   */
+  [PRIVATE.toIncognitoSubscriptionInfo](subscriptionType: string,
+      playlistInfo: Object, channelInfo: Object):
+      [Subscription, Playlist, Channel] {
+    return [
+      new Subscription({
+        type: subscriptionType,
+        playlistId: playlistInfo.id,
+        channelId: channelInfo.id,
+        state: SubscriptionState.ACTIVE,
+        lastError: null,
+        accountId: null,
+        isIncognito: 1
+      }),
+      new Playlist({
+        id: playlistInfo.id,
+        title: playlistInfo.title,
+        description: playlistInfo.description,
+        videoCount: playlistInfo.videoCount,
+        thumbnails: playlistInfo.thumbnails,
+        accountIds: [],
+        incognitoSubscriptionIds: []
+      }),
+      new Channel({
+        id: channelInfo.id,
+        title: channelInfo.title,
+        thumbnails: channelInfo.thumbnails,
+        uploadsPlaylistId: channelInfo.uploadsPlaylistId,
+        accountIds: [],
+        incognitoSubscriptionIds: []
+      })
+    ]
   }
 }
