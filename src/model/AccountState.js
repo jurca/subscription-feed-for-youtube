@@ -16,13 +16,14 @@ export default Object.freeze({
   DISABLED: "DISABLED",
 
   /**
-   * The access to the account is not currently authorized by the user, some
-   * features may not be available.
+   * The account is enabled, but access to the account is not currently
+   * authorized by the user, some features may not be available.
    */
   UNAUTHORIZED: "UNAUTHORIZED",
 
   /**
-   * The YouTube API is reporting an error related to this account.
+   * The account is enabled, but the YouTube API is reporting an error related
+   * to this account.
    */
   ERROR: "ERROR"
 })
