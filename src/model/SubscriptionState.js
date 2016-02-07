@@ -17,7 +17,7 @@ export default Object.freeze({
   DISABLED: "DISABLED",
 
   /**
-   * The subscription is reporting an error.
+   * The subscription is enabled, but reporting an error.
    */
   ERROR: "ERROR"
 })
