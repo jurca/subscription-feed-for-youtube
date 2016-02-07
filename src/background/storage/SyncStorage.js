@@ -1,5 +1,6 @@
 
 import createPrivate from "../../createPrivate";
+import Lock from "../../Lock"
 import SubscriptionType from "../../model/SubscriptionType"
 
 const STORAGE_KEYS = Object.freeze({
@@ -17,15 +18,14 @@ const PRIVATE = createPrivate()
 PRIVATE.getItem = Symbol("getItem")
 PRIVATE.setItem = Symbol("setItem")
 PRIVATE.getItemQuotaUsage = Symbol("getItemQuotaUsage")
-PRIVATE.lock = Symbol("lock")
+PRIVATE.switchAccountsState = Symbol("switchAccountsState")
+PRIVATE.switchSubscriptionsState = Symbol("switchSubscriptionsState")
 
 export default class SyncStorage {
   constructor() {
-    PRIVATE(this).accountsLock = false
+    PRIVATE(this).accountsLock = new Lock()
 
-    PRIVATE(this).channelsLock = false
-
-    PRIVATE(this).playlistsLock = false
+    PRIVATE(this).subscriptionsLock = new Lock()
 
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area !== "sync") {
@@ -36,42 +36,55 @@ export default class SyncStorage {
     })
   }
 
-  async getAccountIds(): Array<string> {
-    return await this[PRIVATE.getItem](STORAGE_KEYS.ACCOUNTS)
+  async getAccountIds(): Array<{id: string, enabled: boolean}> {
+    let accountsData = await this[PRIVATE.getItem](STORAGE_KEYS.ACCOUNTS)
+    let accounts = []
+    for (let i = 0; i < accountsData.length; i += 2) {
+      accounts.push({
+        id: accountsData[i],
+        enabled: !!accountsData[i + 1]
+      })
+    }
+    return accounts
   }
 
   async addAccount(accountId: string): void {
-    await this[PRIVATE.lock](
-      () => PRIVATE(this).accountsLock,
-      () => PRIVATE(this).accountsLock = true
-    )
-
-    let accountIds = await this.getAccountIds()
-    if (!accountIds.includes(accountId)) {
-      accountIds.push(accountId)
-      await this[PRIVATE.setItem](STORAGE_KEYS.ACCOUNTS, accountIds)
-    }
-
-    PRIVATE(this).accountsLock = false
+    await PRIVATE(this).accountsLock.lock(async () => {
+      let accounts = await this[PRIVATE.getItem](STORAGE_KEYS.ACCOUNTS)
+      if (!accounts.includes(accountId)) {
+        accounts.push(accountId, 1)
+        await this[PRIVATE.setItem](STORAGE_KEYS.ACCOUNTS, accounts)
+      }
+    })
   }
 
-  async removeAccount(accountId: string): void {
-    await this[PRIVATE.lock](
-      () => PRIVATE(this).accountsLock,
-      () => PRIVATE(this).accountsLock = true
-    )
-
-    let accountsIds = await this.getAccountIds()
-    let idIndex = accountsIds.indexOf(accountId)
-    if (idIndex > -1) {
-      accountsIds.splice(idIndex, 1)
-      await this[PRIVATE.setItem](STORAGE_KEYS.ACCOUNTS)
-    }
-
-    PRIVATE(this).accountsLock = false
+  async enableAccounts(accountIds: Array<string>): void {
+    await this[PRIVATE.switchAccountsState](true, accountIds)
   }
 
-  async getIncognitoSubscriptions(): Array<{channel: string, enabled: boolean}|{playlist: string, enabled: boolean}> {
+  async disableAccounts(accountsIds: Array<string>): void {
+    await this[PRIVATE.switchAccountsState](false, accountsIds)
+  }
+
+  async removeAccounts(accountIds: string): void {
+    await PRIVATE(this).accountsLock.lock(async () => {
+      let accounts = await this[PRIVATE.getItem](STORAGE_KEYS.ACCOUNTS)
+      let changed = false
+      for (let i = accounts.length - 2; i >= 0; i -= 2) {
+        if (accountIds.includes(accounts[i])) {
+          accounts.splice(i, 2)
+          changed = true
+        }
+      }
+
+      if (changed) {
+        await this[PRIVATE.setItem](STORAGE_KEYS.ACCOUNTS, accounts)
+      }
+    })
+  }
+
+  async getIncognitoSubscriptions():
+      Array<{channel: string, enabled: boolean}|{playlist: string, enabled: boolean}> {
     let [channelsData, playlistsData] = await Promise.all([
       this[PRIVATE.getItem](STORAGE_KEYS.SUBSCRIBED_CHANNELS),
       this[PRIVATE.getItem](STORAGE_KEYS.SUBSCRIBED_PLAYLISTS)
@@ -98,103 +111,92 @@ export default class SyncStorage {
 
   async addIncognitoSubscription(type: SubscriptionType, resourceId: string):
       void {
-    switch (type) {
-      case SubscriptionType.CHANNEL:
-        await this[PRIVATE.lock](
-          () => PRIVATE(this).channelsLock,
-          () => PRIVATE(this).channelsLock = true
-        )
-
-        let channels = await this[PRIVATE.getItem](
-          STORAGE_KEYS.SUBSCRIBED_CHANNELS
-        )
-        if (!channels.includes(resourceId)) {
-          channels.push(resourceId, 1)
-          await this[PRIVATE.setItem](
-            STORAGE_KEYS.SUBSCRIBED_CHANNELS,
-            channels
+    await PRIVATE(this).subscriptionsLock(async () => {
+      switch (type) {
+        case SubscriptionType.CHANNEL:
+          let channels = await this[PRIVATE.getItem](
+            STORAGE_KEYS.SUBSCRIBED_CHANNELS
           )
-        }
-
-        PRIVATE(this).channelsLock = false
-        break
-      case SubscriptionType.PLAYLIST:
-        await this[PRIVATE.lock](
-          () => PRIVATE(this).playlistsLock,
-          () => PRIVATE(this).playlistsLock = true
-        )
-
-        let playlists = await this[PRIVATE.getItem](
-          STORAGE_KEYS.SUBSCRIBED_PLAYLISTS
-        )
-        if (!playlists.includes(resourceId)) {
-          playlists.push(resourceId, 1)
-          await this[PRIVATE.setItem](
-            STORAGE_KEYS.SUBSCRIBED_CHANNELS,
-            playlists
+          if (!channels.includes(resourceId)) {
+            channels.push(resourceId, 1)
+            await this[PRIVATE.setItem](
+              STORAGE_KEYS.SUBSCRIBED_CHANNELS,
+              channels
+            )
+          }
+          break
+        case SubscriptionType.PLAYLIST:
+          let playlists = await this[PRIVATE.getItem](
+            STORAGE_KEYS.SUBSCRIBED_PLAYLISTS
           )
-        }
+          if (!playlists.includes(resourceId)) {
+            playlists.push(resourceId, 1)
+            await this[PRIVATE.setItem](
+              STORAGE_KEYS.SUBSCRIBED_CHANNELS,
+              playlists
+            )
+          }
+          break
+        default:
+          throw new Error(`Unknown subscription type: ${type}`)
+      }
+    })
+  }
 
-        PRIVATE(this).playlistsLock = false
-        break
-      default:
-        throw new Error(`Unknown subscription type: ${type}`)
+  async enableIncognitoSubscriptions(
+      subscriptions: Array<{type: SubscriptionType, resourceId: string}>):
+      void {
+    await this[PRIVATE.switchSubscriptionsState](true, subscriptions)
+  }
+
+  async disableIncognitoSubscriptions(
+      subscriptions: Array<{type: SubscriptionType, resourceId: string}>):
+      void {
+    await this[PRIVATE.switchSubscriptionsState](false, subscriptions)
+  }
+
+  async removeIncognitoSubscriptions(
+      subscriptions: Array<{type: SubscriptionType, resourceId: string}>):
+      void {
+    let channelsToRemove = new Set()
+    let playlistsToRemove = new Set()
+    for (let subscription of subscriptions) {
+      if (subscription.type === SubscriptionType.CHANNEL) {
+        channelsToRemove.add(subscription.resourceId)
+      } else {
+        playlistsToRemove.add(subscription.resourceId)
+      }
     }
-  }
 
-  async enableIncognitoSubscription(type: SubscriptionType, resourceId: string): void {
-    //
-  }
+    await PRIVATE(this).subscriptionsLock.lock(async () => {
+      let [channelsData, playlistsData] = await Promise.all([
+        this[PRIVATE.getItem](STORAGE_KEYS.SUBSCRIBED_CHANNELS),
+        this[PRIVATE.getItem](STORAGE_KEYS.SUBSCRIBED_PLAYLISTS)
+      ])
 
-  async disableIncognitoSubscription(type: SubscriptionType, resourceId: string): void {
-    //
-  }
-
-  async removeIncognitoSubscription(type: SubscriptionType, resourceId: string) {
-    switch (type) {
-      case SubscriptionType.CHANNEL:
-        await this[PRIVATE.lock](
-          () => PRIVATE(this).channelsLock,
-          () => PRIVATE(this).channelsLock = true
-        )
-
-        let channels = await this[PRIVATE.getItem](
-          STORAGE_KEYS.SUBSCRIBED_CHANNELS
-        )
-        let idIndex = channels.indexOf(resourceId)
-        if (idIndex > -1) {
-          channels.splice(idIndex, 1)
-          await this[PRIVATE.setItem](
-            STORAGE_KEYS.SUBSCRIBED_CHANNELS,
-            channels
-          )
+      let changed = false
+      for (let i = channelsData.length - 2; i >= 0; i -= 2) {
+        if (channelsToRemove.has(channelsData[i])) {
+          channelsData.splice(i, 2)
+          changed = true
         }
-
-        PRIVATE(this).playlistsLock = false
-        break
-      case SubscriptionType.PLAYLIST:
-        await this[PRIVATE.lock](
-          () => PRIVATE(this).playlistsLock,
-          () => PRIVATE(this).playlistsLock = true
-        )
-
-        let playlists = await this[PRIVATE.getItem](
-          STORAGE_KEYS.SUBSCRIBED_PLAYLISTS
-        )
-        let idIndex = playlists.indexOf(resourceId)
-        if (idIndex > -1) {
-          playlists.splice(idIndex, 1)
-          await this[PRIVATE.setItem](
-            STORAGE_KEYS.SUBSCRIBED_PLAYLISTS,
-            playlists
-          )
+      }
+      for (let i = playlistsData.length - 2; i >= 0; i -= 2) {
+        if (playlistsToRemove.has(playlistsData[i])) {
+          channelsData.splice(i, 2)
+          changed = true
         }
+      }
 
-        PRIVATE(this).playlistsLock = false
-        break
-      default:
-        throw new Error(`Unknown subscription type: ${type}`)
-    }
+      if (!changed) {
+        return
+      }
+
+      await Promise.all([
+        this[PRIVATE.setItem](STORAGE_KEYS.SUBSCRIBED_CHANNELS, channelsData),
+        this[PRIVATE.setItem](STORAGE_KEYS.SUBSCRIBED_PLAYLISTS, playlistsData)
+      ])
+    })
   }
 
   async getQuotaUsage(): {accounts: number, channels: number, playlists: number, itemMaximum: number, totalMaximum: number} {
@@ -211,6 +213,68 @@ export default class SyncStorage {
       itemMaximum: QUOTA_BYTES_PER_ITEM,
       totalMaximum: QUOTA_BYTES
     }
+  }
+
+  async [PRIVATE.switchAccountsState](enable: boolean,
+      accountIds: Array<string>): void {
+    await PRIVATE(this).accountsLock.lock(async () => {
+      let accounts = this[PRIVATE.getItem](STORAGE_KEYS.ACCOUNTS)
+      let changed = false
+      for (let i = 0; i < accounts.length; i += 2) {
+        if (accountIds.includes(accounts[i])) {
+          accounts[i + 1] = enable ? 1 : 0
+          changed = true
+        }
+      }
+
+      if (changed) {
+        this[PRIVATE.setItem](STORAGE_KEYS.ACCOUNTS, accounts)
+      }
+    })
+  }
+
+  async [PRIVATE.switchSubscriptionsState](enable: boolean,
+      subscriptions: Array<{type: SubscriptionType, resourceId: string}>):
+      void {
+    let channelsToModify = new Set()
+    let playlistsToModify = new Set()
+    for (let subscription of subscriptions) {
+      if (subscription.type === SubscriptionType.CHANNEL) {
+        channelsToModify.add(subscription.resourceId)
+      } else if (subscription.type === SubscriptionType.PLAYLIST) {
+        playlistsToModify.add(subscription.resourceId)
+      }
+    }
+
+    await PRIVATE(this).subscriptionsLock.lock(async () => {
+      let [channelsData, playlistsData] = await Promise.all([
+        this[PRIVATE.getItem](STORAGE_KEYS.SUBSCRIBED_CHANNELS),
+        this[PRIVATE.getItem](STORAGE_KEYS.SUBSCRIBED_PLAYLISTS)
+      ])
+
+      let changed = false
+      for (let i = 0; i < channelsData.length; i += 2) {
+        if (channelsToModify.has(channelsData[i])) {
+          channelsData[i + 1] = enable ? 1 : 0
+          changed = true
+        }
+      }
+      for (let i = 0; i < playlistsData.length; i += 2) {
+        if (playlistsToModify.has(playlistsData[i])) {
+          playlistsData[i + 1] = enable ? 1 : 0
+          changed = true
+        }
+      }
+
+      if (!changed) {
+        return
+      }
+
+      await Promise.all([
+        this[PRIVATE.setItem](STORAGE_KEYS.SUBSCRIBED_CHANNELS, channelsData),
+        this[PRIVATE.setItem](STORAGE_KEYS.SUBSCRIBED_PLAYLISTS, playlistsData)
+      ])
+    })
   }
 
   [PRIVATE.getItem](key: string): ?(number|string|Array<number|string>) {
@@ -256,22 +320,6 @@ export default class SyncStorage {
 
         resolve(bytesInUse)
       })
-    })
-  }
-
-  [PRIVATE.lock](lockStateGetter, lockGainer) {
-    return new Promise((resolve) => {
-      test()
-
-      function test() {
-        if (!lockStateGetter()) {
-          lockGainer()
-          resolve()
-          return
-        }
-
-        setTimeout(test, Math.floor(Math.random() * 50))
-      }
     })
   }
 }
