@@ -12,9 +12,7 @@ export default Object.freeze({
 
   /**
    * The subscription is disabled. This is only used with incognito
-   * subscriptions. The subscription state is set to ACTIVE even if the account
-   * is disabled to prevent data consistency checking hell caused by multiple
-   * account subscribing to the same channel.
+   * subscriptions.
    */
   DISABLED: "DISABLED",
 
