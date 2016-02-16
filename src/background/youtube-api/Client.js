@@ -139,52 +139,77 @@ export default class Client {
   }
 
   /**
-   * Resolves the provided URL to an incognito subscription.
+   * Resolves the detail of the specified incognito subscription.
    *
-   * @param url The URL to a YouTube channel, user or a playlist.
+   * @param type
+   * @param resourceId
    * @return Entities representing the subscription.
    */
-  async resolveIncognitoSubscription(url: string):
+  async getIncognitoSubscriptionDetails(type: string, resourceId: string):
       [Subscription, Playlist, Channel] {
+    let apiClient = this[PRIVATE.apiClient]
+    let playlistId
+    switch (type) {
+      case SubscriptionType.CHANNEL:
+        playlistId = await apiClient.getUploadsPlaylistId(resourceId)
+        break
+      case SubscriptionType.PLAYLIST:
+        playlistId = resourceId
+        break
+      default:
+        throw new Error(`Unknown subscription type: ${type}`)
+    }
+
+    let playlistInfo = await apiClient.getPlaylistInfo(playlistId)
+    let channelId = playlistInfo.channelId
+    let channelInfo = await apiClient.getChannelInfo(channelId)
+
+    return this[PRIVATE.toIncognitoSubscriptionInfo](
+      type,
+      channelInfo,
+      playlistInfo
+    )
+  }
+
+  /**
+   * Resolves the provided URL to the basic information about an incognito
+   * subscription.
+   *
+   * @param url The URL to a YouTube channel, user or a playlist.
+   * @return Basic information about the incognito subscription. The type is
+   *         one of the {@linkcode SubscriptionType.*} constants.
+   */
+  async resolveIncognitoSubscription(url: string):
+      {type: string, resourceId: string} {
     let validator =
         /^https:\/\/www\.youtube\.com\/(channel\/|user\/|playlist\?(.+&)?list=|watch\?(.+&)?list=).+$/
     if (!validator.test(url)) {
       throw new Error("Invalid user, channel or playlist URL")
     }
 
-    let apiClient = this[PRIVATE.apiClient]
     let channelId = null
-    let subscriptionType = SubscriptionType.PLAYLIST
     let userMatcher = /^https:\/\/www\.youtube\.com\/user\/([^/]+)$/
     let channelMatcher = /^https:\/\/www\.youtube\.com\/channel\/([^/]+)$/
     if (userMatcher.test(url)) {
       let username = decodeURIComponent(userMatcher.exec(url)[1])
-      channelId = await apiClient.getUserChannelId(username)
+      channelId = await this[PRIVATE.apiClient].getUserChannelId(username)
     } else if (channelMatcher.test(url)) {
       channelId = decodeURIComponent(channelMatcher.exec(url)[1])
+    }
+    if (channelId) {
+      return {
+        type: SubscriptionType.CHANNEL,
+        resourceId: channelId
+      }
     }
 
     let playlistMatcher =
         /^https:\/\/www\.youtube\.com\/(?:playlist|watch)\?(?:.+&)?list=([^&]+)(?:&.+)?$/
-    let playlistId
-    let playlistInfo
-    if (channelId) {
-      subscriptionType = SubscriptionType.CHANNEL
-      playlistId = await apiClient.getUploadsPlaylistId(channelId)
-      playlistInfo = await apiClient.getPlaylistInfo(playlistId)
-    } else {
-      playlistId = decodeURIComponent(playlistMatcher.exec(url)[1])
-      playlistInfo = await apiClient.getPlaylistInfo(playlistId)
-      channelId = playlistInfo.channelId
+    let playlistId = decodeURIComponent(playlistMatcher.exec(url)[1])
+    return {
+      type: SubscriptionType.PLAYLIST,
+      resourceId: playlistId
     }
-
-    let channelInfo = await apiClient.getChannelInfo(channelId)
-
-    return this[PRIVATE.toIncognitoSubscriptionInfo](
-      subscriptionType,
-      channelInfo,
-      playlistInfo
-    )
   }
 
   /**
