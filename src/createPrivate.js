@@ -4,6 +4,10 @@
  * private properties of the provided instance. The proxies are generated
  * lazily and cached in a weak map.
  *
+ * The function also generates (and caches) symbols when a property of its is
+ * retrieved, which enables easy declaration and accessing of private class
+ * methods.
+ *
  * The returned function should not be exposed outside of the module defining
  * the class to keep the private fields private.
  *
@@ -12,17 +16,22 @@
  */
 export default function createPrivate(): (instance: Object) => Proxy {
   let proxies = new WeakMap()
-  let symbols = new Map()
+  let instanceSymbols = new Map()
 
-  return (instance) => {
+  let instanceProxyFactory = (instance) => {
     if (proxies.has(instance)) {
       return proxies.get(instance)
     }
 
-    let proxy = createProxy(instance, symbols)
+    let proxy = createProxy(instance, instanceSymbols)
     proxies.set(instance, proxy)
     return proxy
   }
+
+  let methodSymbols = new Map()
+  return new Proxy(instanceProxyFactory, {
+    get: (target, propertyName) => getSymbol(methodSymbols, propertyName)
+  })
 }
 
 /**
@@ -37,7 +46,7 @@ export default function createPrivate(): (instance: Object) => Proxy {
 function createProxy(instance: Object, symbols: Map<string, symbol>): Proxy {
   return new Proxy(instance, {
     set: (target, propertyName, value) => {
-      let symbol = getSymbol(symbols, propertyName);
+      let symbol = getSymbol(symbols, propertyName)
       instance[symbol] = value
       return true
     },
