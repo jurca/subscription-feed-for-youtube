@@ -1,5 +1,6 @@
 
 import YouTubeApiClient from "sf4yt-gapi-client/es2015/YouTubeApiClient"
+import createPrivate from "../../createPrivate"
 import Account from "../../model/Account"
 import AccountState from "../../model/AccountState"
 import Channel from "../../model/Channel"
@@ -9,15 +10,7 @@ import SubscriptionState from "../../model/SubscriptionState"
 import SubscriptionType from "../../model/SubscriptionType"
 import Video from "../../model/Video"
 
-/**
- * Private field symbols
- *
- * @type {Object<string, symbol>}
- */
-const PRIVATE = Object.freeze({
-  apiClient: Symbol("apiClient"),
-  toIncognitoSubscriptionInfo: Symbol("toIncognitoSubscriptionInfo")
-})
+const PRIVATE = createPrivate()
 
 /**
  * Client for communication with the YouTube API using the identity of a single
@@ -31,7 +24,7 @@ export default class Client {
    *        YouTube data API.
    */
   constructor(apiClient: YouTubeApiClient) {
-    this[PRIVATE.apiClient] = apiClient
+    PRIVATE(this).apiClient = apiClient
   }
 
   /**
@@ -43,7 +36,7 @@ export default class Client {
    * @return An entity representing the YouTube account.
    */
   async getAccountInfo(accountId: string, channelId: ?string = null): Account {
-    let accountData = await this[PRIVATE.apiClient].getAccountInfo(channelId)
+    let accountData = await PRIVATE(this).apiClient.getAccountInfo(channelId)
     return new Account({
       id: accountId,
       channelId: accountData.id,
@@ -67,7 +60,7 @@ export default class Client {
    */
   async getSubscriptions(account: Account, authorized: boolean = false):
       Array<[Subscription, Channel]> {
-    let apiClient = this[PRIVATE.apiClient]
+    let apiClient = PRIVATE(this).apiClient
     let channels = await apiClient.getSubscribedChannels(
       account.channelId,
       authorized
@@ -122,7 +115,7 @@ export default class Client {
     }
 
     let playlistIds = channels.map(channel => channel.uploadsPlaylistId)
-    let playlists = await this[PRIVATE.apiClient].getPlaylists(playlistIds)
+    let playlists = await PRIVATE(this).apiClient.getPlaylists(playlistIds)
 
     return playlists.map((playlist) => {
       let channel = playlistToChannel.get(playlist.id)
@@ -147,7 +140,7 @@ export default class Client {
    */
   async getIncognitoSubscriptionDetails(type: string, resourceId: string):
       [Subscription, Playlist, Channel] {
-    let apiClient = this[PRIVATE.apiClient]
+    let apiClient = PRIVATE(this).apiClient
     let playlistId
     switch (type) {
       case SubscriptionType.CHANNEL:
@@ -164,7 +157,7 @@ export default class Client {
     let channelId = playlistInfo.channelId
     let channelInfo = await apiClient.getChannelInfo(channelId)
 
-    return this[PRIVATE.toIncognitoSubscriptionInfo](
+    return PRIVATE.toIncognitoSubscriptionInfo(
       type,
       channelInfo,
       playlistInfo
@@ -192,7 +185,7 @@ export default class Client {
     let channelMatcher = /^https:\/\/www\.youtube\.com\/channel\/([^/]+)$/
     if (userMatcher.test(url)) {
       let username = decodeURIComponent(userMatcher.exec(url)[1])
-      channelId = await this[PRIVATE.apiClient].getUserChannelId(username)
+      channelId = await PRIVATE(this).apiClient.getUserChannelId(username)
     } else if (channelMatcher.test(url)) {
       channelId = decodeURIComponent(channelMatcher.exec(url)[1])
     }
@@ -230,7 +223,7 @@ export default class Client {
     }
 
     let playlistIds = Array.from(playlistsMap.keys())
-    let apiClient = this[PRIVATE.apiClient]
+    let apiClient = PRIVATE(this).apiClient
     let videoCounts = await apiClient.getPlaylistVideoCounts(playlistIds)
 
     let updated = new Map()
@@ -274,7 +267,7 @@ export default class Client {
     let knownVideoIds = new Set(knownVideos.map(video => video.id))
     let newVideosCount = playlist.videoCount - knownVideos.length
 
-    let apiClient = this[PRIVATE.apiClient]
+    let apiClient = PRIVATE(this).apiClient
     let videos = await apiClient.getPlaylistVideos(playlist.id, (videos) => {
       for (let video of videos) {
         let videoId = video.id
@@ -325,7 +318,7 @@ export default class Client {
     }
 
     let videoIds = Array.from(videosMap.keys())
-    let videosMetaData = await this[PRIVATE.apiKey].getVideosMetaData(videoIds)
+    let videosMetaData = await PRIVATE(this).apiKey.getVideosMetaData(videoIds)
 
     let updated = []
     for (let videoMetaData of videosMetaData) {
@@ -350,7 +343,7 @@ export default class Client {
    * @param playlist The playlist to which the video should be added.
    */
   async addVideoToPlaylist(video: Video, playlist: Playlist): void {
-    let apiClient = this[PRIVATE.apiClient]
+    let apiClient = PRIVATE(this).apiClient
     return await apiClient.addPlaylistItem(playlist.id, video.id)
   }
 
