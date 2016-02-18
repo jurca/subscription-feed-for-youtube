@@ -13,37 +13,37 @@ export default class Account extends AbstractEntity {
   /**
    * Google account ID, provided by the Chrome OAuth2 API.
    */
-  id: string
+  id: string;
 
   /**
    * ID of the YouTube channel associated with the account.
    */
-  channelId: string
+  channelId: string;
 
   /**
    * The name of the Google account (currently the e-mail address).
    */
-  title: string
+  title: string;
 
   /**
    * The state of the account, must be one of the {@linkcode AccountState.*}
    * constants.
    */
-  state: string
+  state: string;
 
   /**
    * The last error reported by the YouTube API related to this account. Set
    * to {@code null} if the account works properly.
    */
-  lastError: ?string
+  lastError: ?string;
 
   /**
    * ID the of playlist that contains the watch history of the account.
    */
-  watchHistoryPlaylistId: string
+  watchHistoryPlaylistId: string;
 
   /**
    * ID of the "watch later" playlist for this account.
    */
-  watchLaterPlaylistId: string
+  watchLaterPlaylistId: string;
 }

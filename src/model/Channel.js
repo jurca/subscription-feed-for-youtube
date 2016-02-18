@@ -12,12 +12,12 @@ export default class Channel extends AbstractEntity {
   /**
    * The ID of the YouTube channel.
    */
-  id: string
+  id: string;
 
   /**
    * The name of the YouTube channel.
    */
-  title: string
+  title: string;
 
   /**
    * The thumbnails of the channel. The keys are quality description strings,
@@ -29,21 +29,21 @@ export default class Channel extends AbstractEntity {
    * - {@code default} - 88 &times; 88 pixels
    * - {@code high} - 240 &times; 240 pixels
    */
-  thumbnails: Object<string, string>
+  thumbnails: Object<string, string>;
 
   /**
    * ID of the playlist containing the uploaded videos.
    */
-  uploadsPlaylistId: string
+  uploadsPlaylistId: string;
 
   /**
    * The Google account IDs of the accounts that are subscribed to this
    * channel.
    */
-  accountIds: Array<string>
+  accountIds: Array<string>;
 
   /**
    * IDs of the incognito subscriptions to this channel.
    */
-  incognitoSubscriptionIds: Array<number>
+  incognitoSubscriptionIds: Array<number>;
 }

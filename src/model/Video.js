@@ -10,22 +10,22 @@ export default class Video extends AbstractEntity {
   /**
    * Video ID.
    */
-  id: string
+  id: string;
 
   /**
    * Video title.
    */
-  title: string
+  title: string;
 
   /**
    * Video description.
    */
-  description: string
+  description: string;
 
   /**
    * The moment at which the video has been uploaded and published.
    */
-  publishedAt: Date
+  publishedAt: Date;
 
   /**
    * Thumbnails of the video. The keys are quality description strings.
@@ -39,44 +39,44 @@ export default class Video extends AbstractEntity {
    * - {@code standard} - 640 &times; 480
    * - {@code maxres} - 1280 &times; 720
    */
-  thumbnails: Object<string, {url: string, width: number, height: number}>
+  thumbnails: Object<string, {url: string, width: number, height: number}>;
 
   /**
    * Duration of the video in seconds.
    */
-  duration: number
+  duration: number;
 
   /**
    * Number of views of the video.
    */
-  viewCount: number
+  viewCount: number;
 
   /**
    * ID of the YouTube channel on which the video was uploaded.
    */
-  channelId: string
+  channelId: string;
 
   /**
    * Google account IDs of the accounts from which the video is available.
    */
-  accountIds: Array<string>
+  accountIds: Array<string>;
 
   /**
    * IDs of incognito subscriptions from which the video is available.
    */
-  incognitoSubscriptionIds: Array<number>
+  incognitoSubscriptionIds: Array<number>;
 
   /**
    * Set to {@code 1} if this video has already been watched, marked as watched
    * or watched by the "watch history" playlist of any account; set to
    * {@code 0} otherwise.
    */
-  watched: number
+  watched: number;
 
   /**
    * Set to {@code 1} if at least one YouTube account subscription or incognito
    * subscription from which this video originated is currently enabled,
    * otherwise set to {@code 0}.
    */
-  isEnabled: number
+  isEnabled: number;
 }
