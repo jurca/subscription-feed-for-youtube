@@ -2,18 +2,10 @@
 import ApiClient from "sf4yt-gapi-client/es2015/ApiClient"
 import TokenGenerator from "sf4yt-gapi-client/es2015/ChromeOAuthTokenGenerator"
 import YouTubeApiClient from "sf4yt-gapi-client/es2015/YouTubeApiClient"
+import createPrivate from "../../createPrivate"
 import Client from "./Client"
 
-/**
- * Private field symbols.
- *
- * @type {Object<string, symbol>}
- */
-const PRIVATE = Object.freeze({
-  apiKey: Symbol("apiKey"),
-  requestTimeout: Symbol("requestTimeout"),
-  clients: Symbol("clients")
-})
+const PRIVATE = createPrivate()
 
 /**
  * Multi-user YouTube API client factory.
@@ -32,14 +24,14 @@ export default class ClientFactory {
      *
      * @type {string}
      */
-    this[PRIVATE.apiClient] = apiKey
+    PRIVATE(this).apiClient = apiKey
 
     /**
      * The timeout of request to the YouTube API in milliseconds.
      *
      * @type {number}
      */
-    this[PRIVATE.requestTimeout] = requestTimeout
+    PRIVATE(this).requestTimeout = requestTimeout
 
     /**
      * Cache of YouTube API client instances for users. The keys are Google
@@ -47,7 +39,7 @@ export default class ClientFactory {
      *
      * @type {Map<string, Client>}
      */
-    this[PRIVATE.clients] = new Map()
+    PRIVATE(this).clients = new Map()
 
     Object.freeze(this)
   }
@@ -60,21 +52,21 @@ export default class ClientFactory {
    * @return YouTube API client for the specified client.
    */
   getClientForUser(accountId: string): Client {
-    if (this[PRIVATE.clients].has(accountId)) {
-      return this[PRIVATE.clients].get(accountId)
+    if (PRIVATE(this).clients.has(accountId)) {
+      return PRIVATE(this).clients.get(accountId)
     }
 
     let tokenGenerator = new TokenGenerator(accountId)
     let apiClient = new ApiClient(
       "youtube",
       3,
-      this[PRIVATE.apiKey],
+      PRIVATE(this).apiKey,
       tokenGenerator,
-      this[PRIVATE.requestTimeout]
+      PRIVATE(this).requestTimeout
     )
     let youTubeApiClient = new YouTubeApiClient(apiClient)
     let client = new Client(youTubeApiClient)
-    this[PRIVATE.clients].set(accountId, client)
+    PRIVATE(this).clients.set(accountId, client)
 
     return client
   }
