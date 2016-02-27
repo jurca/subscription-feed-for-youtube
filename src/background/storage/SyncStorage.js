@@ -1,5 +1,6 @@
 
-import createPrivate from "../../createPrivate";
+import createPrivate from "../../createPrivate"
+import EventBus from "../../EventBus"
 import Lock from "../../Lock"
 import SubscriptionType from "../../model/SubscriptionType"
 
@@ -7,7 +8,7 @@ import SubscriptionType from "../../model/SubscriptionType"
  * Storage keys used to identify the data stored in the Chrome's synchronized
  * storage. The keys are as short as possible to save data.
  *
- * @type {Object<string, string>}
+ * @type {{ACCOUNTS: string, SUBSCRIBED_CHANNELS: string, SUBSCRIBED_PLAYLISTS: string}}
  */
 const STORAGE_KEYS = Object.freeze({
   ACCOUNTS: "a",
@@ -30,13 +31,19 @@ const QUOTA_BYTES = chrome.storage.sync.QUOTA_BYTES // 102,400
  */
 const QUOTA_BYTES_PER_ITEM = chrome.storage.sync.QUOTA_BYTES_PER_ITEM // 8,192
 
+/**
+ * Possible accounts, playlists or channels list modification types.
+ *
+ * @type {{ADDED: string, REMOVED: string, ENABLED: string, DISABLED: string}}
+ */
+const MODIFICATION_TYPES = Object.freeze({
+  ADDED: "ADDED",
+  REMOVED: "REMOVED",
+  ENABLED: "ENABLED",
+  DISABLED: "DISABLED"
+})
+
 const PRIVATE = createPrivate()
-// private methods
-PRIVATE.getItem = Symbol("getItem")
-PRIVATE.setItem = Symbol("setItem")
-PRIVATE.getItemQuotaUsage = Symbol("getItemQuotaUsage")
-PRIVATE.switchAccountsState = Symbol("switchAccountsState")
-PRIVATE.switchSubscriptionsState = Symbol("switchSubscriptionsState")
 
 /**
  * Utility for easier management of Google account IDs and incognito
@@ -45,8 +52,11 @@ PRIVATE.switchSubscriptionsState = Symbol("switchSubscriptionsState")
 export default class SyncStorage {
   /**
    * Initializes the Synchronized Storage accessor.
+   *
+   * @param eventBus The event bus for sending event about updates of changes
+   *        in the storage.
    */
-  constructor() {
+  constructor(eventBus: EventBus) {
     /**
      * Lock used to synchronize the access to the Google accounts storage.
      *
@@ -62,12 +72,77 @@ export default class SyncStorage {
      */
     PRIVATE(this).subscriptionsLock = new Lock()
 
+    /**
+     * The event bus for sending event about updates of changes in the storage.
+     *
+     * @type {EventBus}
+     */
+    PRIVATE(this).eventBus = eventBus
+
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area !== "sync") {
         return
       }
 
-      // TODO: process changes by notifying the listeners
+      for (let field of Object.keys(changes)) {
+        let change = changes[field]
+        switch (field) {
+          case STORAGE_KEYS.ACCOUNTS:
+            this[PRIVATE.onAccountsModified](change.oldValue, change.newValue)
+            break
+          case STORAGE_KEYS.SUBSCRIBED_CHANNELS:
+            this[PRIVATE.onChannelsModified](change.oldValue, change.newValue)
+            break
+          case STORAGE_KEYS.SUBSCRIBED_PLAYLISTS:
+            this[PRIVATE.onPlaylistsModified](change.oldValue, change.newValue)
+            break
+          default:
+            // some other storage item was modified, nothing to do
+            break
+        }
+      }
+    })
+
+    Object.freeze(this)
+  }
+
+  /**
+   * Returns the constants containing the names of the event bus events fired
+   * by this synchronized storage.
+   *
+   * @return The constants containing the names of the event bus events fired
+   *         by this synchronized storage.
+   */
+  static get EVENTS(): {
+    ACCOUNT_ADDED: string,
+    ACCOUNT_ENABLED: string,
+    ACCOUNT_DISABLED: string,
+    ACCOUNT_REMOVED: string,
+    CHANNEL_ADDED: string,
+    CHANNEL_ENABLED: string,
+    CHANNEL_DISABLED: string,
+    CHANNEL_REMOVED: string,
+    PLAYLIST_ADDED: string,
+    PLAYLIST_ENABLED: string,
+    PLAYLIST_DISABLED: string,
+    PLAYLIST_REMOVED: string
+  } {
+    const eventPrefix = "background.storage.SyncStorage.EVENTS.";
+    return Object.freeze({
+      ACCOUNT_ADDED: `${eventPrefix}ACCOUNT_ADDED`,
+      ACCOUNT_ENABLED: `${eventPrefix}ACCOUNTS_ENABLED`,
+      ACCOUNT_DISABLED: `${eventPrefix}ACCOUNTS_DISABLED`,
+      ACCOUNT_REMOVED: `${eventPrefix}ACCOUNTS_REMOVED`,
+
+      CHANNEL_ADDED: `${eventPrefix}CHANNEL_ADDED`,
+      CHANNEL_ENABLED: `${eventPrefix}CHANNEL_ENABLED`,
+      CHANNEL_DISABLED: `${eventPrefix}CHANNEL_DISABLED`,
+      CHANNEL_REMOVED: `${eventPrefix}CHANNEL_REMOVED`,
+
+      PLAYLIST_ADDED: `${eventPrefix}PLAYLIST_ADDED`,
+      PLAYLIST_ENABLED: `${eventPrefix}PLAYLIST_ENABLED`,
+      PLAYLIST_DISABLED: `${eventPrefix}PLAYLIST_DISABLED`,
+      PLAYLIST_REMOVED: `${eventPrefix}PLAYLIST_REMOVED`
     })
   }
 
@@ -200,8 +275,10 @@ export default class SyncStorage {
    * @param type The subscription type.
    * @param resourceId The channel or playlist ID.
    */
-  async addIncognitoSubscription(type: SubscriptionType, resourceId: string):
-      void {
+  async addIncognitoSubscription(
+    type: SubscriptionType,
+    resourceId: string
+  ): void {
     await PRIVATE(this).subscriptionsLock(async () => {
       switch (type) {
         case SubscriptionType.CHANNEL:
@@ -246,8 +323,8 @@ export default class SyncStorage {
    * @param subscriptions The subscription to enable.
    */
   async enableIncognitoSubscriptions(
-      subscriptions: Array<{type: SubscriptionType, resourceId: string}>):
-      void {
+    subscriptions: Array<{type: SubscriptionType, resourceId: string}>
+  ): void {
     await this[PRIVATE.switchSubscriptionsState](true, subscriptions)
   }
 
@@ -257,8 +334,8 @@ export default class SyncStorage {
    * @param subscriptions The subscriptions to disable.
    */
   async disableIncognitoSubscriptions(
-      subscriptions: Array<{type: SubscriptionType, resourceId: string}>):
-      void {
+    subscriptions: Array<{type: SubscriptionType, resourceId: string}>
+  ): void {
     await this[PRIVATE.switchSubscriptionsState](false, subscriptions)
   }
 
@@ -269,8 +346,8 @@ export default class SyncStorage {
    * @param subscriptions The subscriptions to delete.
    */
   async removeIncognitoSubscriptions(
-      subscriptions: Array<{type: SubscriptionType, resourceId: string}>):
-      void {
+    subscriptions: Array<{type: SubscriptionType, resourceId: string}>
+  ): void {
     let channelsToRemove = new Set()
     let playlistsToRemove = new Set()
     for (let subscription of subscriptions) {
@@ -360,8 +437,10 @@ export default class SyncStorage {
    *        disabled.
    * @param accountIds The accounts to modify.
    */
-  async [PRIVATE.switchAccountsState](enable: boolean,
-      accountIds: Array<string>): void {
+  async [PRIVATE.switchAccountsState](
+    enable: boolean,
+    accountIds: Array<string>
+  ): void {
     await PRIVATE(this).accountsLock.lock(async () => {
       let accounts = this[PRIVATE.getItem](STORAGE_KEYS.ACCOUNTS)
       if (!accounts) {
@@ -389,9 +468,10 @@ export default class SyncStorage {
    *        enabled or disabled.
    * @param subscriptions The subscriptions to modify.
    */
-  async [PRIVATE.switchSubscriptionsState](enable: boolean,
-      subscriptions: Array<{type: SubscriptionType, resourceId: string}>):
-      void {
+  async [PRIVATE.switchSubscriptionsState](
+    enable: boolean,
+    subscriptions: Array<{type: SubscriptionType, resourceId: string}>
+  ): void {
     let channelsToModify = new Set()
     let playlistsToModify = new Set()
     for (let subscription of subscriptions) {
@@ -507,5 +587,185 @@ export default class SyncStorage {
         resolve(bytesInUse)
       })
     })
+  }
+
+  /**
+   * Handles modifications of the user's Google account list. The method will
+   * detect the modifications made and notifies the rest of the application
+   * using events send via the event bus.
+   *
+   * @param oldAccounts The old account IDs, with each playlist ID followed by
+   *        a flag whether the subscription is active.
+   * @param newAccounts The new account IDs, with each playlist ID followed by
+   *        a flag whether the subscription is active.
+   */
+  [PRIVATE.onAccountsModified](oldAccounts, newAccounts) {
+    this[PRIVATE.processModifications](oldAccounts, newAccounts, {
+      ADDED: SyncStorage.EVENTS.ACCOUNT_ADDED,
+      ENABLED: SyncStorage.EVENTS.ACCOUNT_ENABLED,
+      DISABLED: SyncStorage.EVENTS.ACCOUNT_DISABLED,
+      REMOVED: SyncStorage.EVENTS.ACCOUNT_REMOVED
+    })
+  }
+
+  /**
+   * Handles modifications of the channel incognito subscriptions list. The
+   * method will detect the modifications made and notifies the rest of the
+   * application using events send via the event bus.
+   *
+   * @param oldChannels The old channel IDs, with each playlist ID followed by
+   *        a flag whether the subscription is active.
+   * @param newChannels The new channel IDs, with each playlist ID followed by
+   *        a flag whether the subscription is active.
+   */
+  [PRIVATE.onChannelsModified](oldChannels, newChannels) {
+    this[PRIVATE.processModifications](oldChannels, newChannels, {
+      ADDED: SyncStorage.EVENTS.CHANNEL_ADDED,
+      ENABLED: SyncStorage.EVENTS.CHANNEL_ENABLED,
+      DISABLED: SyncStorage.EVENTS.CHANNEL_DISABLED,
+      REMOVED: SyncStorage.EVENTS.CHANNEL_REMOVED
+    })
+  }
+
+  /**
+   * Handles modifications of the playlist incognito subscriptions list. The
+   * method will detect the modifications made and notifies the rest of the
+   * application using events send via the event bus.
+   *
+   * @param oldPlaylists The old playlist IDs, with each playlist ID followed
+   *        by a flag whether the subscription is active.
+   * @param newPlaylists The new playlist IDs, with each playlist ID followed
+   *        by a flag whether the subscription is active.
+   */
+  [PRIVATE.onPlaylistsModified](oldPlaylists, newPlaylists) {
+    this[PRIVATE.processModifications](oldPlaylists, newPlaylists, {
+      ADDED: SyncStorage.EVENTS.PLAYLIST_ADDED,
+      ENABLED: SyncStorage.EVENTS.PLAYLIST_ENABLED,
+      DISABLED: SyncStorage.EVENTS.PLAYLIST_DISABLED,
+      REMOVED: SyncStorage.EVENTS.PLAYLIST_REMOVED
+    })
+  }
+
+  /**
+   * Detects the modifications that lead from the old resource ID list to the
+   * new resource ID list, and then notifies the rest of the application by
+   * sending events using the event bus.
+   *
+   * The resource ID list is a list of account/channel/playlist IDs with each
+   * ID followed by a {@code 1} or {@code 0} depending on the resource being
+   * marked as enabled or disabled respectively.
+   *
+   * @param oldResources The old list of resource IDs and enabled flags.
+   * @param newResources The new list of resource IDs and enabled flags.
+   * @param events The names of teh events to fire for each modification type.
+   */
+  [PRIVATE.processModifications](
+    oldResources: ?Array<(number|string)>,
+    newResources: ?Array<(number|string)>,
+    events: {ADDED: string, ENABLED: string, DISABLED: string, REMOVED: string}
+  ): void {
+    let modifications = this[PRIVATE.getListModifications](
+      oldResources,
+      newResources
+    )
+    this[PRIVATE.sendModificationNotifications](modifications, events)
+  }
+
+  /**
+   * Sends events of the specified names to notify the rest of the application
+   * about the provided modifications of the contents of the synchronized
+   * storage.
+   *
+   * @param modifications The modifications of which to notify the rest of the
+   *        application.
+   * @param events The names of the events to fire for each modification type.
+   */
+  [PRIVATE.sendModificationNotifications](
+    modifications: Array<{type: string, id: string}>,
+    events: {ADDED: string, ENABLED: string, DISABLED: string, REMOVED: string}
+  ): void {
+    for (let modification of modifications) {
+      let eventName
+
+      switch (modification.type) {
+        case MODIFICATION_TYPES.ADDED:
+          eventName = events.ADDED
+          break
+        case MODIFICATION_TYPES.ENABLED:
+          eventName = events.ENABLED
+          break
+        case MODIFICATION_TYPES.DISABLED:
+          eventName = events.DISABLED
+          break
+        case MODIFICATION_TYPES.REMOVED:
+          eventName = events.REMOVED
+          break
+        default:
+          throw new Error("Invalid resource ID list modification type: " +
+              modification.type)
+      }
+
+      PRIVATE(this).eventBus.fire(eventName, {
+        id: modification.id
+      })
+    }
+  }
+
+  /**
+   * Creates a list of modifications made to the old resource ID list that led
+   * to the creation of the new resource ID list.
+   *
+   * The resource ID list is a list of account/channel/playlist IDs with each
+   * ID followed by a {@code 1} or {@code 0} depending on the resource being
+   * marked as enabled or disabled respectively.
+   *
+   * @param rawOldList The old resource ID list.
+   * @param rawNewList The new resource ID list.
+   * @return The list of modifications that lead from the old list to the new
+   *         list.
+   */
+  [PRIVATE.getListModifications](
+    rawOldList: ?Array<(number|string)>,
+    rawNewList: ?Array<(number|string)>
+  ): Array<{type: string, id: string}> {
+    let oldList = rawOldList || []
+    let newList = rawNewList || []
+
+    let oldResources = new Map()
+    for (let i = 0; i < oldList.length; i += 2) {
+      oldResources.set(oldList[i], oldList[i + 1])
+    }
+
+    let modifications = []
+
+    for (let i = 0; i < newList.length; i += 2) {
+      if (oldResources.has(newList[i])) {
+        if (newList[i + 1] != oldResources.get(newList[i])) {
+          let type = newList[i + 1] ?
+              MODIFICATION_TYPES.ENABLED :
+              MODIFICATION_TYPES.DISABLED
+          modifications.push({
+            type,
+            id: newList[i]
+          })
+        }
+      } else {
+        modifications.push({
+          type: MODIFICATION_TYPES.ADDED,
+          id: newList[i]
+        })
+      }
+
+      oldResources.delete(newList[i])
+    }
+
+    for (let id of oldResources.keys()) {
+      modifications.push({
+        type: MODIFICATION_TYPES.REMOVED,
+        id
+      })
+    }
+
+    return modifications
   }
 }
