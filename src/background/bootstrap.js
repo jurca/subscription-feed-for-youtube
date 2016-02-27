@@ -8,3 +8,5 @@ import ClientFactory from "./youtube-api/ClientFactory"
 let di = new DependencyInjector()
 
 di.configure(ClientFactory, config.api.key, config.api.requestTimeout)
+
+di.configure(SyncStorage, EventBus)
