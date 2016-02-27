@@ -127,7 +127,7 @@ export default class SyncStorage {
     PLAYLIST_DISABLED: string,
     PLAYLIST_REMOVED: string
   } {
-    const eventPrefix = "background.storage.SyncStorage.EVENTS.";
+    const eventPrefix = "background.storage.SyncStorage.EVENTS."
     return Object.freeze({
       ACCOUNT_ADDED: `${eventPrefix}ACCOUNT_ADDED`,
       ACCOUNT_ENABLED: `${eventPrefix}ACCOUNTS_ENABLED`,
