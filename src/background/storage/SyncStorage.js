@@ -599,7 +599,8 @@ export default class SyncStorage {
    * @param newAccounts The new account IDs, with each playlist ID followed by
    *        a flag whether the subscription is active.
    */
-  [PRIVATE.onAccountsModified](oldAccounts, newAccounts) {
+  [PRIVATE.onAccountsModified](oldAccounts: ?Array<(number|string)>,
+      newAccounts: ?Array<(number|string)>): void {
     this[PRIVATE.processModifications](oldAccounts, newAccounts, {
       ADDED: SyncStorage.EVENTS.ACCOUNT_ADDED,
       ENABLED: SyncStorage.EVENTS.ACCOUNT_ENABLED,
@@ -618,7 +619,8 @@ export default class SyncStorage {
    * @param newChannels The new channel IDs, with each playlist ID followed by
    *        a flag whether the subscription is active.
    */
-  [PRIVATE.onChannelsModified](oldChannels, newChannels) {
+  [PRIVATE.onChannelsModified](oldChannels: ?Array<(number|string)>,
+      newChannels: ?Array<(number|string)>): void {
     this[PRIVATE.processModifications](oldChannels, newChannels, {
       ADDED: SyncStorage.EVENTS.CHANNEL_ADDED,
       ENABLED: SyncStorage.EVENTS.CHANNEL_ENABLED,
@@ -637,7 +639,8 @@ export default class SyncStorage {
    * @param newPlaylists The new playlist IDs, with each playlist ID followed
    *        by a flag whether the subscription is active.
    */
-  [PRIVATE.onPlaylistsModified](oldPlaylists, newPlaylists) {
+  [PRIVATE.onPlaylistsModified](oldPlaylists: ?Array<(number|string)>,
+      newPlaylists: ?Array<(number|string)>): void {
     this[PRIVATE.processModifications](oldPlaylists, newPlaylists, {
       ADDED: SyncStorage.EVENTS.PLAYLIST_ADDED,
       ENABLED: SyncStorage.EVENTS.PLAYLIST_ENABLED,
