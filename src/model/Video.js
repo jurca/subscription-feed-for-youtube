@@ -79,4 +79,9 @@ export default class Video extends AbstractEntity {
    * otherwise set to {@code 0}.
    */
   isEnabled: number;
+
+  /**
+   * The moment the video's view count has been updated last time.
+   */
+  lastUpdate: Date;
 }

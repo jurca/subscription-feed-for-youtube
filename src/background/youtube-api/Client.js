@@ -289,7 +289,9 @@ export default class Client {
         viewCount: -1,
         accountIds: playlist.accountIds.slice(),
         incognitoSubscriptionIds: playlist.incognitoSubscriptionIds.slice(),
-        watched: 0
+        watched: 0,
+        isEnabled: 0, // the flag will be set afterwards
+        lastUpdate: new Date(0)
       })))
     }
 
@@ -299,6 +301,7 @@ export default class Client {
       let entity = videoEntities.get(data.id)
       entity.duration = data.duration
       entity.viewCount = data.viewCount
+      entity.lastUpdate = new Date()
     }
 
     return Array.from(videoEntities.values())
@@ -325,6 +328,7 @@ export default class Client {
       let video = videosMap.get(videoMetaData.id)
       if (video.viewCount !== videoMetaData.viewCount) {
         video.videoCount = videoMetaData.viewCount
+        video.lastUpdate = new Date()
         updated.push(video)
       }
     }
