@@ -48,7 +48,7 @@ export default class Subscription extends AbstractEntity {
    * The ID of the Google account from which this subscription has been
    * provided. The field is {@code null} if this is an incognito subscription.
    */
-  accountId: string;
+  accountId: ?string;
 
   /**
    * Set to {@code 1} if this is an incognito subscription (has been provided
