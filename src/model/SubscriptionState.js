@@ -11,8 +11,8 @@ export default Object.freeze({
   ACTIVE: "ACTIVE",
 
   /**
-   * The subscription is disabled. This is only used with incognito
-   * subscriptions.
+   * The subscription is disabled (either this is a disabled incognito
+   * subscription, or the Google account has been disabled).
    */
   DISABLED: "DISABLED",
 
