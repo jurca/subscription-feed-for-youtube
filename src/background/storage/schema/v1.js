@@ -72,6 +72,11 @@ export default {
       unique: false,
       multiEntry: true
     }, {
+      name: "lastUpdate",
+      keyPath: ["lastUpdate"],
+      unique: false,
+      multiEntry: false
+    }, {
       name: "feed",
       keyPath: ["isEnabled", "watched", "publishedAt", "id"],
       unique: false,
