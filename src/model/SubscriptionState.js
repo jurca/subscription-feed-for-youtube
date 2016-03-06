@@ -3,6 +3,7 @@
  * Possible states of a subscription to a YouTube channel or playlist.
  *
  * @enum {string}
+ * @type {{ACTIVE: string, DISABLED: string, ERROR: string}}
  */
 export default Object.freeze({
   /**

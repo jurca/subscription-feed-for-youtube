@@ -3,6 +3,12 @@
  * Enum containing the possible states of a user's YouTube account.
  *
  * @enum {string}
+ * @type {{
+ *     ACTIVE: string,
+ *     DISABLED: string,
+ *     UNAUTHORIZED: string,
+ *     ERROR: string
+ * }}
  */
 export default Object.freeze({
   /**
