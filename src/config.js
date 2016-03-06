@@ -6,5 +6,6 @@ export default Object.freeze({
       "mVsRnRiRlJXYkZWNVYxWmtWMkV4U2xWUmFrSnNZVEZKTUZSc1ZrZGhaejA5"
     )))),
     requestTimeout: 15000
-  })
+  }),
+  databaseName: "Subscription Feed For YouTube"
 })
