@@ -1,7 +1,9 @@
 
 import createPrivate from "../../../createPrivate"
 import EventBus from "../../../EventBus"
+import Lock from "../../../Lock"
 import Account from "../../../model/Account"
+import AccountState from "../../../model/AccountState"
 import ClientFactory from "../../youtube-api/ClientFactory"
 import Database from "../Database"
 import SyncStorage from "../SyncStorage"
@@ -21,10 +23,11 @@ export default class AccountsSynchronizer {
    *        modifications. The accounts synchronizer will use it to notify the
    *        application when an account has been successfully added.
    * @param clientFactory Factory for YouTube API clients.
+   * @param syncStorage The synchronized settings storage.
    * @param database The Indexed DB database connection.
    */
   constructor(eventBus: EventBus, clientFactory: ClientFactory,
-      database: Database) {
+      syncStorage: SyncStorage, database: Database) {
     /**
      * The event bus that will deliver event about account modifications. The
      * accounts synchronizer will use it to notify the application when an
@@ -38,9 +41,19 @@ export default class AccountsSynchronizer {
     PRIVATE(this).clientFactory = clientFactory
 
     /**
+     * The synchronized settings storage.
+     */
+    PRIVATE(this).syncStorage = syncStorage
+
+    /**
      * The Indexed DB database connection.
      */
     PRIVATE(this).database = database
+
+    /**
+     * Lock for synchronizing the processing of accounts modifications.
+     */
+    PRIVATE(this).accountsLock = new Lock()
 
     eventBus.addListener(
       SyncStorage.EVENTS.ACCOUNT_ADDED,
@@ -65,6 +78,8 @@ export default class AccountsSynchronizer {
       this[PRIVATE.onAccountRemoved],
       this
     )
+
+    Object.freeze(this)
   }
 
   /**
@@ -83,40 +98,66 @@ export default class AccountsSynchronizer {
     })
   }
 
-  async [PRIVATE.onAccountAdded](accountInfo: {id: string}) {
+  /**
+   * Handles an account being added to the synchronized storage. The method
+   * retrieves the related account info (if possible) and creates the account's
+   * entity in the database.
+   *
+   * @param accountInfo Received information about the account.
+   */
+  async [PRIVATE.onAccountAdded](accountInfo: {id: string}): void {
     let accountId = accountInfo.id
     let apiClient = PRIVATE(this).clientFactory.getClientForUser(accountId)
     let entityManager = PRIVATE(this).database.createEntityManager()
 
-    // TODO: check if the account is enabled in the sync storage
+    return await PRIVATE(this).accountsLock.lock(async () => {
+      let accountEnabled = await this[PRIVATE.isAccountEnabled](accountId)
+      if (accountEnabled === null) {
+        console.warn(`The account with ID ${accountId} was added but has ` +
+            "already been removed from the synchronized storage")
+        return
+      }
+      let state = accountEnabled ?
+          AccountState.UNAUTHORIZED :
+          AccountState.DISABLED
 
-    let currentAccountId = await this[PRIVATE.getCurrentAccountId]()
-    if (accountId !== currentAccountId) {
-      // Chrome did not allow access to multiple Google accounts from a single
-      // browser instance at the time of implementation.
-      await entityManager.persist(new Account({
-        id: accountId,
-        channelId: null,
-        title: null,
-        state: null, // TODO
-        lastError: null,
-        watchHistoryPlaylistId: null,
-        watchLaterPlaylistId: null
-      }))
-      return
-    }
+      let currentAccountId = await this[PRIVATE.getCurrentAccountId]()
+      if (accountId !== currentAccountId) {
+        // Chrome did not allow access to multiple Google accounts from a
+        // single browser instance at the time of implementation.
+        await entityManager.persist(this[PRIVATE.getBlankAccountEntity](
+          accountId,
+          state
+        ))
+        return
+      }
 
-    /*
-     * TODO: what if the account has been added through synchronization and not
-     * interactively? check (or request) authorization?
-     */
-    let account = await apiClient.getAccountInfo(accountId)
+      let account
+      try {
+        account = await apiClient.getAccountInfo(accountId)
+      } catch (error) {
+        if (error.name !== "OAuthError") {
+          throw error
+        }
 
-    await entityManager.persist(account)
+        // the account is not authorized, it was most likely added through the
+        // settings synchronization
+        await entityManager.persist(this[PRIVATE.getBlankAccountEntity](
+          accountId,
+          state
+        ))
+        return
+      }
 
-    PRIVATE(this).eventBus.fire(
-      AccountsSynchronizer.EVENTS.ACCOUNT_ADDED, account
-    )
+      if (!accountEnabled) {
+        account.state = AccountState.DISABLED
+      }
+      await entityManager.persist(account)
+
+      PRIVATE(this).eventBus.fire(
+        AccountsSynchronizer.EVENTS.ACCOUNT_ADDED, account
+      )
+    })
   }
 
   [PRIVATE.onAccountEnabled](accountInfo: {id: string}) {
@@ -131,6 +172,51 @@ export default class AccountsSynchronizer {
     throw new Error("Not implemented yet")
   }
 
+  /**
+   * Creates a new, blank, Google account entity for an account of the
+   * specified ID and state.
+   *
+   * @param id The account's ID.
+   * @param state The account's state.
+   * @return The created (mostly) blank account entity.
+   */
+  [PRIVATE.getBlankAccountEntity](id: string, state: string): Account {
+    return new Account({
+      id,
+      channelId: null,
+      title: null,
+      state,
+      lastError: null,
+      watchHistoryPlaylistId: null,
+      watchLaterPlaylistId: null
+    })
+  }
+
+  /**
+   * Determines whether the specified account is enabled. Returns {@code null}
+   * if the specified account is not among the accounts in the synchronized
+   * storage.
+   *
+   * @param accountId The ID of the Google account.
+   * @return {@code true} if the account is enabled, {@code false} if the
+   *         account is disabled, or {@code null} if the account is not
+   *         currently managed by the extension.
+   */
+  async [PRIVATE.isAccountEnabled](accountId: string): ?boolean {
+    let accounts = await PRIVATE(this).syncStorage.getAccounts()
+    let accountDetails = accounts.filter((account) => {
+      return account.account === accountId
+    })[0]
+
+    return accountDetails && accountDetails.enabled
+  }
+
+  /**
+   * Returns the ID of the user's current Google account.
+   *
+   * @return A promise that resolves to the ID of the user's current Google
+   *         account.
+   */
   [PRIVATE.getCurrentAccountId](): Promise<string> {
     return new Promise((resolve, reject) => {
       chrome.identity.getProfileUserInfo((userInfo) => {
