@@ -123,13 +123,14 @@ export default class AccountsSynchronizer {
           AccountState.UNAUTHORIZED :
           AccountState.DISABLED
 
-      let currentAccountId = await this[PRIVATE.getCurrentAccountId]()
-      if (accountId !== currentAccountId) {
+      let currentAccountInfo = await this[PRIVATE.getCurrentAccountInfo]()
+      if (accountId !== currentAccountInfo.id) {
         // Chrome did not allow access to multiple Google accounts from a
         // single browser instance at the time of implementation.
         await entityManager.persist(this[PRIVATE.getBlankAccountEntity](
           accountId,
-          state
+          state,
+          currentAccountInfo.email
         ))
         return
       }
@@ -146,11 +147,13 @@ export default class AccountsSynchronizer {
         // settings synchronization
         await entityManager.persist(this[PRIVATE.getBlankAccountEntity](
           accountId,
-          state
+          state,
+          currentAccountInfo.email
         ))
         return
       }
 
+      account.title = currentAccountInfo.email
       if (!accountEnabled) {
         account.state = AccountState.DISABLED
       }
@@ -206,13 +209,15 @@ export default class AccountsSynchronizer {
    *
    * @param id The account's ID.
    * @param state The account's state.
+   * @param title The account's title (e-mail address), if available.
    * @return The created (mostly) blank account entity.
    */
-  [PRIVATE.getBlankAccountEntity](id: string, state: string): Account {
+  [PRIVATE.getBlankAccountEntity](id: string, state: string,
+      title: ?string = null): Account {
     return new Account({
       id,
       channelId: null,
-      title: null,
+      title,
       state,
       lastError: null,
       watchHistoryPlaylistId: null,
@@ -240,19 +245,19 @@ export default class AccountsSynchronizer {
   }
 
   /**
-   * Returns the ID of the user's current Google account.
+   * Returns the information about the user's current Google account.
    *
-   * @return A promise that resolves to the ID of the user's current Google
-   *         account.
+   * @return A promise that resolves to the information about the user's
+   *         current Google account.
    */
-  [PRIVATE.getCurrentAccountId](): Promise<string> {
+  [PRIVATE.getCurrentAccountInfo](): Promise<{id: string, email: string}> {
     return new Promise((resolve, reject) => {
       chrome.identity.getProfileUserInfo((userInfo) => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message))
         }
 
-        resolve(userInfo.id)
+        resolve(userInfo)
       })
     })
   }
