@@ -4,6 +4,8 @@ import EventBus from "../../EventBus"
 import Lock from "../../Lock"
 import SubscriptionType from "../../model/SubscriptionType"
 
+// TODO: add settings
+
 /**
  * Storage keys used to identify the data stored in the Chrome's synchronized
  * storage. The keys are as short as possible to save data.
@@ -151,7 +153,7 @@ export default class SyncStorage {
    *
    * @return The IDs of the managed Google accounts.
    */
-  async getAccountIds(): Array<{account: string, enabled: boolean}> {
+  async getAccounts(): Array<{account: string, enabled: boolean}> {
     let accountsData = await this[PRIVATE.getItem](STORAGE_KEYS.ACCOUNTS)
     if (!accountsData) {
       accountsData = []
