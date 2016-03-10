@@ -90,11 +90,13 @@ export default class AccountsSynchronizer {
    *         by this accounts synchronizer.
    */
   static get EVENTS(): {
-    ACCOUNT_ADDED: string
+    ACCOUNT_ADDED: string,
+    ACCOUNT_ENABLED: string
   } {
     const eventPrefix = "background.storage.synchronization.EVENTS."
     return Object.freeze({
-      ACCOUNT_ADDED: `${eventPrefix}ACCOUNT_ADDED`
+      ACCOUNT_ADDED: `${eventPrefix}ACCOUNT_ADDED`,
+      ACCOUNT_ENABLED: `${eventPrefix}ACCOUNT_ENABLED`
     })
   }
 
@@ -160,8 +162,34 @@ export default class AccountsSynchronizer {
     })
   }
 
-  [PRIVATE.onAccountEnabled](accountInfo: {id: string}) {
-    throw new Error("Not implemented yet")
+  /**
+   * Handles an account being enabled in the synchronized storage. The method
+   * updates the account's entity in the database.
+   *
+   * @param accountInfo Information about the account that has been enabled.
+   */
+  async [PRIVATE.onAccountEnabled](accountInfo: {id: string}): void {
+    let accountId = accountInfo.id
+    let entityManager = PRIVATE(this).database.createEntityManager()
+
+    let account
+
+    await PRIVATE(this).accountsLock.lock(async () => {
+      return await entityManager.runTransaction(async () => {
+        account = await entityManager.find(Account, accountId)
+        if (!account) {
+          throw new Error(`The account with ID ${accountId} was marked as ` +
+              "enabled in the synchronized storage, but is no longer in the " +
+              "database")
+        }
+
+        account.state = AccountState.ACTIVE
+      })
+    })
+
+    PRIVATE(this).eventBus.fire(
+      AccountsSynchronizer.EVENTS.ACCOUNT_ENABLED, account
+    )
   }
 
   [PRIVATE.onAccountDisabled](accountInfo: {id: string}) {
