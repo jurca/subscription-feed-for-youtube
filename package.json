@@ -35,8 +35,8 @@
     "indexed-db.es6": "^0.5.4",
     "jurca-di": "^0.2.0",
     "load-grunt-tasks": "^3.4.1",
-    "moment": "git+http://github.com/moment/moment.git#2.11.1",
-    "sf4yt-gapi-client": "git+http://github.com/jurca/sf4yt-gapi-client.git#0.7.0"
+    "moment": "^2.12.0",
+    "sf4yt-gapi-client": "git+http://github.com/jurca/sf4yt-gapi-client.git#0.7.2"
   },
   "engines": {
     "node": ">=5.9.0",
