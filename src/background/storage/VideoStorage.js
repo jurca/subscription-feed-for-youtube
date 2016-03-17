@@ -55,7 +55,7 @@ export default class VideoStorage {
     ) ? 1 : 0
     let enabledAccounts = allAccounts.filter((account) => {
       return account.state !== AccountState.DISABLED
-    });
+    })
     let enabledIncognitoSubscriptions = allIncognitoSubscription.filter(
       subscription => subscription.state !== SubscriptionState.DISABLED
     )
