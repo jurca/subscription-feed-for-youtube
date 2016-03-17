@@ -51,6 +51,11 @@ export default {
       keyPath: "isIncognito",
       unique: false,
       multiEntry: false
+    }, {
+      name: "subscriptions to update",
+      keyPath: ["isIncognito", "accountId"],
+      unique: false,
+      multiEntry: false
     }]
   }, {
     name: Video.objectStore,
