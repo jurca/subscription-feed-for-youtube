@@ -1,9 +1,9 @@
 
 import createPrivate from "../../createPrivate"
-import DatabaseFactory from "indexed-db.es6/es2015/DBFactory"
+import DatabaseFactory from "indexed-db.es6"
 import IDBDatabase from "indexed-db.es6/es2015/Database"
 import EntityManager from "idb-entity/es2015/EntityManager"
-import EntityManagerFactory from "idb-entity/es2015/EntityManagerFactory"
+import EntityManagerFactory from "idb-entity"
 import v1Schema from "./schema/v1"
 
 const PRIVATE = createPrivate()
