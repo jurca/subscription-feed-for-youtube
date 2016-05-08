@@ -1,7 +1,7 @@
 
 import KeyRange from "indexed-db.es6/es2015/object-store/KeyRange"
 import Transaction from "indexed-db.es6/es2015/transaction/Transaction"
-import createPrivate from "../../createPrivate"
+import createPrivate from "namespace-proxy"
 import Account from "../../model/Account"
 import AccountState from "../../model/AccountState"
 import Subscription from "../../model/Subscription"

@@ -2,7 +2,7 @@
 import ApiClient from "sf4yt-gapi-client/es2015/ApiClient"
 import TokenGenerator from "sf4yt-gapi-client/es2015/ChromeOAuthTokenGenerator"
 import YouTubeApiClient from "sf4yt-gapi-client/es2015/YouTubeApiClient"
-import createPrivate from "../../createPrivate"
+import createPrivate from "namespace-proxy"
 import Client from "./Client"
 
 const PRIVATE = createPrivate()

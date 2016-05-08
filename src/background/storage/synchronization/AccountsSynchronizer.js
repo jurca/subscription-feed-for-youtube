@@ -1,5 +1,5 @@
 
-import createPrivate from "../../../createPrivate"
+import createPrivate from "namespace-proxy"
 import EventBus from "../../../EventBus"
 import Lock from "../../../Lock"
 import Account from "../../../model/Account"

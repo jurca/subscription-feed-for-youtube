@@ -1,5 +1,5 @@
 
-import createPrivate from "./createPrivate"
+import createPrivate from "namespace-proxy"
 
 const PRIVATE = createPrivate()
 

@@ -1,6 +1,6 @@
 
 import EntityManager from "idb-entity/es2015/EntityManager"
-import createPrivate from "../../createPrivate"
+import createPrivate from "namespace-proxy"
 import Account from "../../model/Account"
 import Channel from "../../model/Channel"
 import Subscription from "../../model/Subscription"

@@ -1,6 +1,6 @@
 
 import YouTubeApiClient from "sf4yt-gapi-client/es2015/YouTubeApiClient"
-import createPrivate from "../../createPrivate"
+import createPrivate from "namespace-proxy"
 import Account from "../../model/Account"
 import AccountState from "../../model/AccountState"
 import Channel from "../../model/Channel"
