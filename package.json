@@ -36,11 +36,11 @@
     "jurca-di": "^0.2.0",
     "load-grunt-tasks": "^3.4.1",
     "moment": "^2.12.0",
-    "namespace-proxy": "0.0.0",
+    "namespace-proxy": "^0.1.1",
     "sf4yt-gapi-client": "git+http://github.com/jurca/sf4yt-gapi-client.git#0.7.2"
   },
   "engines": {
-    "node": ">=5.9.0",
-    "npm": "~3.7.3"
+    "node": ">=6.2.0",
+    "npm": "~3.8.9"
   }
 }
