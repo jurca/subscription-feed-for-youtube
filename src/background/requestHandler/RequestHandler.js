@@ -73,7 +73,7 @@ export default class RequestHandler {
           processPromise = handler.create(message.data)
           break
         case "delete":
-          processPromise = handler.delete(message.data)
+          processPromise = handler.delete(message.parameters)
           break
         default:
           throw new Error("Received a message with an unknown method: " +
