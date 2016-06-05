@@ -4,14 +4,42 @@ import AbstractHandler from "./resourceHandler/AbstractHandler"
 
 const PRIVATE = createPrivate()
 
+/**
+ * The request handler is REST API-like server that allows other views of the
+ * extension to communicate with the background page by sending messages and
+ * receiving replies.
+ */
 export default class RequestHandler {
+  /**
+   * Initializes the request handler.
+   *
+   * @param resourceHandlers The resource handlers that should be used to
+   *        handle the incoming messages. There cannot be multiple resource
+   *        handlers handling the same resource.
+   */
   constructor(...resourceHandlers: AbstractHandler[]) {
+    let handledResources = new Set()
+    for (let handler of resourceHandlers) {
+      let resourceName = handler.resourceName
+      if (handledResources.has(resourceName)) {
+        throw new Error("Obtained multiple resource handlers for handling " +
+            `the ${resourceName} resource`)
+      }
+      handledResources.add(resourceName)
+    }
+
     /**
+     * The resource handlers that should be used to handle the incoming
+     * messages.
+     *
      * @type {AbstractHandler[]}
      */
     PRIVATE(this).resourceHandlers = resourceHandlers
 
     /**
+     * The private {@code onMessage} method bound to this instance. The method
+     * is used as an event listener for the incoming messages.
+     *
      * @type {function(
      *         this:RequestHandler,
      *         {resource: string, method: string, parameters: ?Object<string, (number|string)>, data: ?Object<string, *>},
@@ -22,13 +50,19 @@ export default class RequestHandler {
     PRIVATE(this).onMessage = this[PRIVATE.onMessage].bind(this);
 
     /**
+     * The state of the request handler.
+     *
      * @type {boolean}
      */
     PRIVATE(this).running = false
     
     Object.seal(this)
   }
-  
+
+  /**
+   * Starts the request handler, allowing it to handle incoming messages,
+   * processing them and sending replies.
+   */
   start() {
     if (PRIVATE(this).running) {
       throw new Error("The request handler is already running")
@@ -37,7 +71,11 @@ export default class RequestHandler {
     chrome.runtime.onMessage.addListener(PRIVATE(this).onmessage)
     PRIVATE(this).running = true
   }
-  
+
+  /**
+   * Stops the request handler. This method should not be used under normal
+   * circumstances, it is useful for debugging only.
+   */
   stop() {
     if (PRIVATE(this).running) {
       throw new Error("The request handler is already stopped")
