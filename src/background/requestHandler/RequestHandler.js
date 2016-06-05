@@ -47,6 +47,17 @@ export default class RequestHandler {
     PRIVATE(this).running = false
   }
 
+  /**
+   * Incoming message handler.
+   *
+   * @param message The received message.
+   * @param sender Identifier of the sender of the received message, which is
+   *        irrelevant due to constraints imposed by Chrome.
+   * @param sendResponse The callback to use to send the response to the sender
+   *        of the message.
+   * @return Always {@code true}, indicating the message will be responded to
+   *         asynchronically.
+   */
   [PRIVATE.onMessage](
     message: {resource: string, method: string, parameters: ?Object<string, (number|string)>, data: ?Object<string, *>},
     sender: any,
