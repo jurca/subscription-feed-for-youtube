@@ -26,7 +26,7 @@ export default class AbstractHandler {
    */
   async list(
     parameters: Object<string, (number|string|number[]|string[])>
-  ): Array<*> {
+  ): Array<any> {
     throw new Error(`The ${this.resourceName} does not support the list ` +
         "method")
   }
@@ -39,7 +39,9 @@ export default class AbstractHandler {
    * @return A JSON-serializable representation of the fetched entity, or
    *         {@code null} if no matching entity has been found.
    */
-  async get(parameters: Object<string, (number|string|number[]|string[])>): * {
+  async get(
+    parameters: Object<string, (number|string|number[]|string[])>
+  ): any {
     throw new Error(`The ${this.resourceName} does not support the get ` +
         "method")
   }
@@ -52,7 +54,7 @@ export default class AbstractHandler {
    *        the entity to patch.
    * @return A JSON-serializable representation of the patched entity.
    */
-  async patch(data: Object<string, *>): * {
+  async patch(data: Object<string, any>): any {
     throw new Error(`The ${this.resourceName} does not support the patch ` +
         "method")
   }
@@ -64,7 +66,7 @@ export default class AbstractHandler {
    *        resource.
    * @return A JSON-serializable representation of the created entity.
    */
-  async create(data: Object<string, *>): * {
+  async create(data: Object<string, any>): any {
     throw new Error(`The ${this.resourceName} does not support the create ` +
         "method")
   }
