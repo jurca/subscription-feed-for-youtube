@@ -5,7 +5,8 @@ module.exports = (grunt) => {
     browserify: {
       dist: {
         files: {
-          "dist/background.js": ["src/background/bootstrap.js"]
+          "dist/background.js": ["src/background/bootstrap.js"],
+          "dist/options.js": ["src/options/bootstrap.js"]
         },
         options: {
           transform: ["babelify"]
