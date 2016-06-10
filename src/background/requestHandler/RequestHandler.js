@@ -97,7 +97,7 @@ export default class RequestHandler {
    *         asynchronically.
    */
   [PRIVATE.onMessage](
-    message: {resource: string, method: string, parameters: ?Object<string, (number|string)>, data: ?Object<string, *>},
+    message: {resource: string, method: string, parameters: ?Object<string, (number|string)>, data: ?Object<string, any>},
     sender: any,
     sendResponse: (response: ({response: any}|{error: {name: string, message: string, stack: string}})) => void
   ): boolean {
