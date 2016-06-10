@@ -1,5 +1,9 @@
 
 import DependencyInjector from "jurca-di"
+import BackgroundConnector from "../BackgroundConnector"
 
 let di = new DependencyInjector()
-console.log(di)
+
+di.configure(BackgroundConnector)
+
+let connector = di.get(BackgroundConnector)
