@@ -9,7 +9,7 @@ export default class BackgroundConnector {
   }
   
   async list(resource: string,
-      parameters: ?Object<string, (number|string)>): any {
+      parameters: ?Object<string, (number|string)> = null): any {
     return await this[PRIVATE.sendRequest]("list", resource, parameters)
   }
 
