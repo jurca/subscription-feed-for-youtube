@@ -68,7 +68,7 @@ export default class RequestHandler {
       throw new Error("The request handler is already running")
     }
 
-    chrome.runtime.onMessage.addListener(PRIVATE(this).onmessage)
+    chrome.runtime.onMessage.addListener(PRIVATE(this).onMessage)
     PRIVATE(this).running = true
   }
 
@@ -81,7 +81,7 @@ export default class RequestHandler {
       throw new Error("The request handler is already stopped")
     }
 
-    chrome.runtime.onMessage.removeListener(PRIVATE(this).onmessage)
+    chrome.runtime.onMessage.removeListener(PRIVATE(this).onMessage)
     PRIVATE(this).running = false
   }
 
