@@ -37,7 +37,6 @@ export default class AccountsHandler extends AbstractHandler {
   ): Array<Account> {
     let entityManager = PRIVATE(this).database.createEntityManager()
     let accounts = await entityManager.query(Account, null, "title")
-    entityManager.close()
     return accounts
   }
 }
