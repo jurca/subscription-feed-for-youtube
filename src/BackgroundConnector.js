@@ -1,11 +1,27 @@
 
 import createPrivate from "namespace-proxy"
+import PortFactory from "./PortFactory"
 
 const PRIVATE = createPrivate()
 
+/**
+ * Utility for communicating with the background page using web messaging.
+ */
 export default class BackgroundConnector {
-  static get dependencies() {
-    return []
+  /**
+   * Initializes the background page connector.
+   *
+   * @param portFactory Factory for creating ports used for two-way
+   *        communication with the background page.
+   */
+  constructor(portFactory: PortFactory) {
+    /**
+     * Factory for creating ports used for two-way communication with the
+     * background page.
+     *
+     * @type {PortFactory}
+     */
+    PRIVATE(this).portFactory = portFactory
   }
   
   async list(resource: string,
@@ -31,6 +47,24 @@ export default class BackgroundConnector {
     return await this[PRIVATE.sendRequest]("delete", resource, parameters)
   }
 
+  /**
+   * Creates a new port for two-way communication with the background page.
+   *
+   * @return The created port.
+   */
+  createPort(): chrome.runtime.Port {
+    return PRIVATE(this).portFactory.createPort()
+  }
+
+  /**
+   * Sends the provided one-off message to the background page.
+   *
+   * @param method The method to use to access to resource.
+   * @param resource The name of the resource to access.
+   * @param parameters The parameters to send to the resource.
+   * @param data The data to send to the resource.
+   * @return Background page's response.
+   */
   async [PRIVATE.sendRequest](method: string, resource: string,
       parameters: ?Object<string, (number|string)>,
       data: ?Object<string, any> = null): any {

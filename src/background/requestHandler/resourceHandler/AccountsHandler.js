@@ -39,4 +39,8 @@ export default class AccountsHandler extends AbstractHandler {
     let accounts = await entityManager.query(Account, null, "title")
     return accounts
   }
+
+  async create(data: Object<string, any>): any {
+    //
+  }
 }
