@@ -23,25 +23,66 @@ export default class BackgroundConnector {
      */
     PRIVATE(this).portFactory = portFactory
   }
-  
+
+  /**
+   * Sends a {@code list} method request to the specified resource of the
+   * background page. Use this to lists of entities.
+   *
+   * @param resource The name of the resource.
+   * @param parameters Additional parameters to pass to the resource.
+   * @return The background page's response.
+   */
   async list(resource: string,
       parameters: ?Object<string, (number|string)> = null): any {
     return await this[PRIVATE.sendRequest]("list", resource, parameters)
   }
 
+  /**
+   * Sends a {@code get} method request to the specified resource of the
+   * background page. Use this to retrieve single entities.
+   *
+   * @param resource The name of the resource.
+   * @param parameters Additional parameters to pass to the resource.
+   * @return The background page's response.
+   */
   async get(resource: string,
       parameters: ?Object<string, (number|string)>): any {
     return await this[PRIVATE.sendRequest]("get", resource, parameters)
   }
 
+  /**
+   * Sends a {@code patch} method request to the specified resource of the
+   * background page. Use this to partially modify entities.
+   *
+   * @param resource The name of the resource.
+   * @param data The data identifying the entity to modify and containing the
+   *        entity's data update.
+   * @return The background page's response.
+   */
   async patch(resource: string, data: ?Object<string, any>): any {
     return await this[PRIVATE.sendRequest]("patch", resource, null, data)
   }
 
+  /**
+   * Sends a {@code create} method request to the specified resource of the
+   * background page. Use this to create entities.
+   *
+   * @param resource The name of the resource.
+   * @param data The data representing the entity and/or any related details.
+   * @return The background page's response.
+   */
   async create(resource: string, data: ?Object<string, any>): any {
     return await this[PRIVATE.sendRequest]("create", resource, null, data)
   }
 
+  /**
+   * Sends a {@code delete} method request to the specified resource of the
+   * background page. Use this to delete entities.
+   *
+   * @param resource The name of the resource.
+   * @param parameters Additional parameters to pass to the resource.
+   * @return The background page's response.
+   */
   async delete(resource: string,
       parameters: ?Object<string, (number|string)>): any {
     return await this[PRIVATE.sendRequest]("delete", resource, parameters)
