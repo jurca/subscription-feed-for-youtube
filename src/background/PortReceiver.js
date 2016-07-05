@@ -40,7 +40,8 @@ export default class PortReceiver {
 
     chrome.runtime.onConnect.addListener((port: chrome.runtime.Port) => {
       let portName = port.name
-      port.onDisconnect.addEventListener(() => {
+      PRIVATE(this).ports.set(portName, port)
+      port.onDisconnect.addListener(() => {
         PRIVATE(this).ports.delete(portName)
         PRIVATE(this).portAwaitCallbacks.delete(portName)
       })
@@ -75,9 +76,11 @@ export default class PortReceiver {
     }
     
     return await new Promise((resolve, reject) => {
-      PRIVATE(this).portAwaitCallbacks.set(portName, resolve)
+      PRIVATE(this).portAwaitCallbacks.set(portName, (port) => {
+        resolve(port)
+      })
       setTimeout(() => {
-        reject(new Error(`A port named ${portName} failed to connect within` +
+        reject(new Error(`A port named ${portName} failed to connect within ` +
             `the configured timeout (${PRIVATE(this).connectionTimeout} ` +
             "milliseconds)"))
       }, PRIVATE(this).connectionTimeout)

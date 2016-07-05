@@ -12,7 +12,24 @@ export default (di: DependencyInjector) => {
     listContainer.innerText = JSON.stringify(error, null, 4)
   })
 
-  document.getElementById("addAccount").addEventListener("click", () => {
-    document.getElementById("addAccount").innerText = "TODO"
+  let addAccountButton = document.getElementById("addAccount")
+  addAccountButton.addEventListener("click", async () => {
+    addAccountButton.innerText = "Connecting..."
+    addAccountButton.disabled = true
+
+    let port = connector.createPort()
+    port.onMessage.addListener((message) => {
+      console.log(message)
+      if (message.msg) {
+        port.postMessage({ reply: "thank you" })
+      }
+    })
+    port.onDisconnect.addListener(() => {
+      console.log("port disconnected")
+    })
+    let response = await connector.create("accounts", {
+      portName: port.name
+    })
+    console.log(response)
   })
 }

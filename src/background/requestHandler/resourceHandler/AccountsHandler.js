@@ -2,6 +2,7 @@
 import createPrivate from "namespace-proxy"
 import AbstractHandler from "./AbstractHandler"
 import Database from "../../storage/Database"
+import PortReceiver from "../../PortReceiver"
 import Account from "../../../model/Account"
 
 const PRIVATE = createPrivate()
@@ -14,8 +15,9 @@ export default class AccountsHandler extends AbstractHandler {
    * Initializes the accounts resource handler.
    * 
    * @param database The database connection.
+   * @param portReceiver Receiver of incoming port connections.
    */
-  constructor(database: Database) {
+  constructor(database: Database, portReceiver: PortReceiver) {
     super()
 
     /**
@@ -24,6 +26,13 @@ export default class AccountsHandler extends AbstractHandler {
      * @type {Database}
      */
     PRIVATE(this).database = database
+
+    /**
+     * Receiver of incoming port connections.
+     *
+     * @type {PortReceiver}
+     */
+    PRIVATE(this).portReceiver = portReceiver
 
     Object.freeze(this)
   }
@@ -40,7 +49,16 @@ export default class AccountsHandler extends AbstractHandler {
     return accounts
   }
 
-  async create(data: Object<string, any>): any {
-    //
+  async create(data: {portName: string}): any {
+    let port = await PRIVATE(this).portReceiver.getPort(data.portName)
+    setTimeout(() => {
+      port.postMessage({ msg: "connected! "})
+    }, 1000)
+    port.onMessage.addListener((message) => {
+      console.log(message)
+      port.postMessage({ msg2: "disconnnecting..." })
+      port.disconnect()
+    })
+    return "OK..."
   }
 }
