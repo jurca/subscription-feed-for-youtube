@@ -5,6 +5,9 @@ import Database from "../../storage/Database"
 import PortReceiver from "../../PortReceiver"
 import Account from "../../../model/Account"
 
+const MAX_AUTHORIZATION_RETRIES = 3
+const AUTHORIZATION_RETRY_DELAY = 1000
+
 const PRIVATE = createPrivate()
 
 /**
@@ -49,16 +52,74 @@ export default class AccountsHandler extends AbstractHandler {
     return accounts
   }
 
-  async create(data: {portName: string}): any {
+  async create(data: {portName: string}): void {
     let port = await PRIVATE(this).portReceiver.getPort(data.portName)
-    setTimeout(() => {
-      port.postMessage({ msg: "connected! "})
-    }, 1000)
-    port.onMessage.addListener((message) => {
-      console.log(message)
-      port.postMessage({ msg2: "disconnnecting..." })
+
+    setTimeout(async () => {
+      try {
+        await this[PRIVATE.requestOAuthAuthorization]()
+        port.postMessage({ state: "AUTHORIZED" })
+      } catch (error) {
+        console.error(error)
+        port.postMessage({ state: "AUTHORIZATION_REJECTED" })
+        port.disconnect()
+        return
+      }
+  
+      // TODO: store the current account in the SyncStorage, observe the
+      // following synchronization and fetching of subscriptions and videos
       port.disconnect()
     })
-    return "OK..."
+  }
+
+  /**
+   * Requests OAuth2 authorization from the current user to access the user's
+   * YouTube account and details used by this extension.
+   */
+  async [PRIVATE.requestOAuthAuthorization](): void {
+    let triesLeft = MAX_AUTHORIZATION_RETRIES
+    let errorMessage = ""
+    return await new Promise((resolve, reject) => {
+      chrome.identity.getAuthToken({
+        interactive: true
+      }, (token) => {
+        if (typeof token === "string") {
+          resolve()
+          return
+        }
+
+        console.warn("We did not receive an OAuth authorization token, but " +
+            "this might be due to how OAuth works in Chrome, retrying in " +
+            `${AUTHORIZATION_RETRY_DELAY} milliseconds (${triesLeft} tries ` +
+            "left)")
+        if (chrome.runtime.lastError) {
+          errorMessage = chrome.runtime.lastError.message
+        }
+        setTimeout(retryNonInteractively, AUTHORIZATION_RETRY_DELAY)
+      })
+
+      function retryNonInteractively() {
+        chrome.identity.getAuthToken({}, (token) => {
+          if (typeof token === "string") {
+            resolve()
+            return
+          }
+
+          triesLeft--
+          if (triesLeft) {
+            console.warn("We did not receive an OAuth authorization token, " +
+                "but this might be due to how OAuth works in Chrome, " +
+                `retrying in ${AUTHORIZATION_RETRY_DELAY} milliseconds ` +
+                `(${triesLeft} tries left)`)
+            setTimeout(retryNonInteractively, AUTHORIZATION_RETRY_DELAY)
+          } else {
+            let rejectionError = new Error("OAuth authorization failed: " +
+                errorMessage ? errorMessage : "unknown reason")
+            rejectionError.name = "OAuthError"
+            reject(rejectionError)
+          }
+        })
+      }
+    })
   }
 }
