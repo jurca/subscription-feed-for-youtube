@@ -24,14 +24,19 @@ export default (di: DependencyInjector) => {
           addAccountButton.textContent = "You rejected authorization"
           break
         case "AUTHORIZED":
-          addAccountButton.textContent = "Authorized, fetching profile info..."
-          break;
+          addAccountButton.textContent = "Authorized, saving..."
+          break
+        case "FETCHING_PROFILE_INFO":
+          addAccountButton.textContent = "Fetching profile info..."
+          break
+        case "ADDED":
+          addAccountButton.textContent = "Account added"
+          break
         default:
           console.warn("Unknown message", message)
       }
     })
     port.onDisconnect.addListener(() => {
-      console.log("port disconnected")
       addAccountButton.disabled = false
     })
 

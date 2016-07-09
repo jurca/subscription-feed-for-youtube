@@ -1,12 +1,16 @@
 
 import createPrivate from "namespace-proxy"
-import AbstractHandler from "./AbstractHandler"
-import Database from "../../storage/Database"
-import PortReceiver from "../../PortReceiver"
+import EventBus from "../../../EventBus"
 import Account from "../../../model/Account"
+import PortReceiver from "../../PortReceiver"
+import Database from "../../storage/Database"
+import SyncStorage from "../../storage/SyncStorage"
+import AccountsSynchronizer from "../../storage/synchronization/AccountsSynchronizer"
+import AbstractHandler from "./AbstractHandler"
 
 const MAX_AUTHORIZATION_RETRIES = 3
 const AUTHORIZATION_RETRY_DELAY = 1000
+const EVENT_AWAIT_TIMEOUT = 2000
 
 const PRIVATE = createPrivate()
 
@@ -19,8 +23,13 @@ export default class AccountsHandler extends AbstractHandler {
    * 
    * @param database The database connection.
    * @param portReceiver Receiver of incoming port connections.
+   * @param syncStorage The cross-device synchronized storage, used as the
+   *        primary storage of account IDs and incognito subscriptions.
+   * @param eventBus The application's event bus for undirected communication
+   *        between application's parts.
    */
-  constructor(database: Database, portReceiver: PortReceiver) {
+  constructor(database: Database, portReceiver: PortReceiver,
+      syncStorage: SyncStorage, eventBus: EventBus) {
     super()
 
     /**
@@ -36,6 +45,22 @@ export default class AccountsHandler extends AbstractHandler {
      * @type {PortReceiver}
      */
     PRIVATE(this).portReceiver = portReceiver
+
+    /**
+     * The cross-device synchronized storage, used as the primary storage of
+     * account IDs and incognito subscriptions.
+     *
+     * @type {SyncStorage}
+     */
+    PRIVATE(this).syncStorage = syncStorage
+
+    /**
+     * The application's event bus for undirected communication between
+     * application's parts.
+     *
+     * @type {EventBus}
+     */
+    PRIVATE(this).eventBus = eventBus
 
     Object.freeze(this)
   }
@@ -66,9 +91,42 @@ export default class AccountsHandler extends AbstractHandler {
         return
       }
   
-      // TODO: store the current account in the SyncStorage, observe the
-      // following synchronization and fetching of subscriptions and videos
-      port.disconnect()
+      let accountId = await this[PRIVATE.getCurrentAccountId]()
+      await PRIVATE(this).syncStorage.addAccount(accountId)
+
+      let eventBus = PRIVATE(this).eventBus
+      try {
+        // Note: technically, we should check the account id to be sure we are
+        // tracking the right account being added, but Chrome does not allow us
+        // to manage multiple Google accounts at the moment of writing this.
+        port.postMessage({ state: "FETCHING_PROFILE_INFO" })
+        await eventBus.awaitEvent(
+          AccountsSynchronizer.EVENTS.ACCOUNT_ADDED,
+          EVENT_AWAIT_TIMEOUT
+        )
+        port.postMessage({ state: "ADDED" })
+      } catch (error) {
+        console.error(error)
+      } finally {
+        port.disconnect()
+      }
+    })
+  }
+
+  /**
+   * Returns the GAIA ID of the current user's Google account.
+   *
+   * @return The GAIA ID of the current user's Google account.
+   */
+  async [PRIVATE.getCurrentAccountId](): string {
+    return new Promise((resolve, reject) => {
+      chrome.identity.getProfileUserInfo((userInfo) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message))
+        }
+
+        resolve(userInfo.id)
+      })
     })
   }
 
