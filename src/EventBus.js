@@ -1,6 +1,13 @@
 
 import createPrivate from "namespace-proxy"
 
+/**
+ * The default event await timeout in milliseconds.
+ *
+ * @type {number}
+ */
+const DEFAULT_WAIT_TIMEOUT = 1000 // milliseconds
+
 const PRIVATE = createPrivate()
 
 /**
@@ -20,6 +27,15 @@ export default class EventBus {
     PRIVATE(this).eventListeners = new Map()
 
     Object.freeze(this)
+  }
+
+  /**
+   * Returns the the dependencies required by the constructor of this class.
+   *
+   * @return The dependencies required by this class.
+   */
+  static get dependencies(): Array<any> {
+    return []
   }
 
   /**
@@ -87,8 +103,40 @@ export default class EventBus {
       return
     }
 
-    for (let entry of PRIVATE(this).eventListeners) {
+    for (let entry of PRIVATE(this).eventListeners.get(event)) {
       entry.listener.call(entry.context, data)
     }
+  }
+
+  /**
+   * Waits for the specified event to occur, and resolves to the data passed by
+   * the event.
+   *
+   * @param eventName The name of the event to wait for.
+   * @param timeout The maximum number of milliseconds the event should be
+   *        waited for.
+   * @return The awaited event data.
+   * @throws {Error} Throw if the provided timeout is not a positive integer,
+   *         or the event did not occur within the specified timeout.
+   */
+  async awaitEvent(eventName: string, timeout: number = DEFAULT_WAIT_TIMEOUT):
+      any {
+    if (timeout <= 0) {
+      throw new Error("The timeout must be a positive integer")
+    }
+
+    return await new Promise((resolve, reject) => {
+      this.addListener(eventName, listener, this)
+      setTimeout(() => {
+        this.removeListener(eventName, listener, this)
+        reject(new Error(`The event ${eventName} did not occur within the ` +
+            `specified timeout (${timeout} milliseconds)`))
+      }, timeout)
+
+      function listener(data) {
+        this.removeListener(eventName, listener, this)
+        resolve(data)
+      }
+    })
   }
 }
