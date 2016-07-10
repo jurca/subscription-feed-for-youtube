@@ -4,12 +4,11 @@ import BackgroundConnector from "../BackgroundConnector"
 
 export default (di: DependencyInjector) => {
   let connector = di.get(BackgroundConnector)
-  connector.list("accounts").then((accounts) => {
-    let listContainer = document.getElementById("accounts")
-    listContainer.textContent = JSON.stringify(accounts, null, 4)
-  }).catch((error) => {
-    let listContainer = document.getElementById("accounts")
-    listContainer.textContent = JSON.stringify(error, null, 4)
+  loadAccounts().then((accountConnected) => {
+    addAccountButton.disabled = accountConnected
+    if (accountConnected) {
+      addAccountButton.title = "Only one account can be connected at a time"
+    }
   })
 
   let addAccountButton = document.getElementById("addAccount")
@@ -37,7 +36,12 @@ export default (di: DependencyInjector) => {
       }
     })
     port.onDisconnect.addListener(() => {
-      addAccountButton.disabled = false
+      loadAccounts().then((accountConnected) => {
+        addAccountButton.disabled = accountConnected
+        if (accountConnected) {
+          addAccountButton.title = "Only one account can be connected at a time"
+        }
+      })
     })
 
     await connector.create("accounts", {
@@ -60,4 +64,17 @@ export default (di: DependencyInjector) => {
       })
     })
   })
+  
+  function loadAccounts() {
+    let listContainer = document.getElementById("accounts")
+    listContainer.textContent = "Loading..."
+    return connector.list("accounts").then((accounts) => {
+      listContainer.textContent = JSON.stringify(accounts, null, 4)
+      return !!accounts.length
+    }).catch((error) => {
+      let listContainer = document.getElementById("accounts")
+      listContainer.textContent = JSON.stringify(error, null, 4)
+    })
+  }
 }
+
