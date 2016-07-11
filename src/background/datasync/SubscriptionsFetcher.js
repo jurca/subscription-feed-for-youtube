@@ -3,6 +3,7 @@ import EntityManager from "idb-entity/es2015/EntityManager"
 import createPrivate from "namespace-proxy"
 import Account from "../../model/Account"
 import Channel from "../../model/Channel"
+import Playlist from "../../model/Playlist"
 import Subscription from "../../model/Subscription"
 import Database from "../storage/Database"
 import ClientFactory from "../youtube-api/ClientFactory"
@@ -42,36 +43,53 @@ export default class SubscriptionsFetcher {
           "because the channel ID is not known")
     }
 
-    let subscriptions = await this[PRIVATE.fetchCurrentSubscriptions](account)
+    let allSubscriptions = await this[PRIVATE.fetchCurrentSubscriptions](
+      account
+    )
 
     let entityManager = PRIVATE(this).database.createEntityManager()
     entityManager.runTransaction(async () => {
-      let currentSubscriptions = await this[PRIVATE.fetchSubscriptions](
+      let knownSubscriptions = await this[PRIVATE.fetchSubscriptions](
         entityManager,
         account
       )
 
-      for (let [subscription, channel] of subscriptions) {
-        let currentSubscription = currentSubscriptions.get(channel.id)
-        let currentChannel = await entityManager.find(Channel, channel.id)
-
-        if (!currentSubscription) {
-          currentSubscription = await entityManager.persist(subscription)
-        }
-        if (!currentChannel) {
-          currentChannel = await entityManager.persist(channel)
-          // TODO: fetch and save the playlist
+      for (let [subscription, channel] of allSubscriptions) {
+        let knownSubscription = knownSubscriptions.get(channel.id)
+        if (!knownSubscription) {
+          knownSubscription = await entityManager.persist(subscription)
         }
 
-        if (!currentChannel.accountIds.includes(account.id)) {
+        let knownChannel = await entityManager.find(Channel, channel.id)
+        if (!knownChannel) {
+          knownChannel = await entityManager.persist(channel)
+          let playlist = await this[PRIVATE.fetchUploadsPlaylist](channel)
+          await entityManager.persist(playlist)
+        }
+
+        if (!knownChannel.accountIds.includes(account.id)) {
           // TODO: update channel, uploads playlist and videos
         }
 
-        currentSubscriptions.delete(channel.id)
+        knownSubscriptions.delete(channel.id)
       }
 
       // TODO: delete remaining subscriptions
     })
+  }
+
+  /**
+   * Fetches the uploads playlist entity from the YouTube API for the specified
+   * channel.
+   *
+   * @param channel The YouTube channel for which the uploads playlist should
+   *        be fetched.
+   * @return The fetched playlist entity.
+   */
+  async [PRIVATE.fetchUploadsPlaylist](channel: Channel): Playlist {
+    let client = PRIVATE(this).clientFactory.getClientForUser(channel.id)
+    let playlists = await client.getUploadsPlaylists([channel])
+    return playlists[0]
   }
 
   /**
