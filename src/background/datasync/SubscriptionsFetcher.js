@@ -4,6 +4,7 @@ import createPrivate from "namespace-proxy"
 import Account from "../../model/Account"
 import Channel from "../../model/Channel"
 import Playlist from "../../model/Playlist"
+import Video from "../../model/Video"
 import Subscription from "../../model/Subscription"
 import Database from "../storage/Database"
 import ClientFactory from "../youtube-api/ClientFactory"
@@ -68,13 +69,24 @@ export default class SubscriptionsFetcher {
         }
 
         if (!knownChannel.accountIds.includes(account.id)) {
-          // TODO: update channel, uploads playlist and videos
+          knownChannel.accountIds.push(account.id)
+          let uploadsPlaylist = await entityManager.find(
+              Playlist,
+              knownChannel.uploadsPlaylistId
+          )
+          uploadsPlaylist.accountIds.push(account.id)
+          let videos = await entityManager.query(Video, {
+            channelId: knownChannel.id
+          })
+          for (let video of videos) {
+            video.accountIds.push(account.id)
+          }
         }
 
         knownSubscriptions.delete(channel.id)
       }
 
-      // TODO: delete remaining subscriptions
+      // TODO: delete remaining subscriptions, clear up channels, playlists and videos
     })
   }
 
