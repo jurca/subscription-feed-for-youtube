@@ -86,7 +86,38 @@ export default class SubscriptionsFetcher {
         knownSubscriptions.delete(channel.id)
       }
 
-      // TODO: delete remaining subscriptions, clear up channels, playlists and videos
+      for (let [channelId, subscription] of knownSubscriptions) {
+        let isStillSubscribed = false
+        for (let [currentSubscription, currentChannel] of allSubscriptions) {
+          if (channelId === currentChannel.id) {
+            isStillSubscribed = true
+          }
+        }
+        if (isStillSubscribed) {
+          continue
+        }
+        
+        let channel = await entityManager.find(Channel, channelId)
+        channel.accountIds = channel.accountIds.filter(
+          otherAccountId => otherAccountId !== account.id
+        )
+        let playlist = await entityManager.find(
+            Playlist,
+            channel.uploadsPlaylistId
+        )
+        playlist.accountIds = playlist.accountIds.filter(
+          otherAccountId => otherAccountId !== account.id
+        )
+        let videos = await entityManager.query(Video, {
+          channelId: channelId
+        })
+        for (let video of videos) {
+          video.accountIds = video.accountIds.filter(
+            otherAccountId => otherAccountId !== account.id
+          )
+        }
+        // TODO: delete channels, playlists and videos that are no longer subscribed
+      }
     })
   }
 
