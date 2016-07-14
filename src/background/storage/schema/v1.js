@@ -67,6 +67,11 @@ export default {
       unique: false,
       multiEntry: false
     }, {
+      name: "channelId",
+      keyPath: "channelId",
+      unique: false,
+      multiEntry: false
+    }, {
       name: "accountIds",
       keyPath: "accountIds",
       unique: false,
