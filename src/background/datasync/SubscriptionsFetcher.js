@@ -96,16 +96,6 @@ export default class SubscriptionsFetcher {
 
       // delete subscriptions that were removed from the account
       for (let [channelId, subscription] of knownSubscriptions) {
-        let isStillSubscribed = false
-        for (let [currentSubscription, currentChannel] of allSubscriptions) {
-          if (channelId === currentChannel.id) {
-            isStillSubscribed = true
-          }
-        }
-        if (isStillSubscribed) {
-          continue
-        }
-
         let channel = await entityManager.find(Channel, channelId)
         channel.accountIds = channel.accountIds.filter(
           otherAccountId => otherAccountId !== account.id
