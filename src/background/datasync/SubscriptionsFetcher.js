@@ -56,6 +56,7 @@ export default class SubscriptionsFetcher {
       )
 
       for (let [subscription, channel] of allSubscriptions) {
+        // save new subscriptions
         let knownSubscription = knownSubscriptions.get(channel.id)
         if (!knownSubscription) {
           knownSubscription = await entityManager.persist(subscription)
@@ -64,28 +65,36 @@ export default class SubscriptionsFetcher {
         let knownChannel = await entityManager.find(Channel, channel.id)
         if (!knownChannel) {
           knownChannel = await entityManager.persist(channel)
-          let playlist = await this[PRIVATE.fetchUploadsPlaylist](channel)
-          await entityManager.persist(playlist)
+        }
+        let playlist = await entityManager.find(
+            Playlist,
+            knownChannel.uploadsPlaylistId
+        )
+        if (!playlist) {
+          playlist = await this[PRIVATE.fetchUploadsPlaylist](channel)
+          playlist = await entityManager.persist(playlist)
         }
 
+        // update existing subscriptions
         if (!knownChannel.accountIds.includes(account.id)) {
           knownChannel.accountIds.push(account.id)
-          let uploadsPlaylist = await entityManager.find(
-              Playlist,
-              knownChannel.uploadsPlaylistId
-          )
-          uploadsPlaylist.accountIds.push(account.id)
+        }
+        if (!playlist.accountIds.includes(account.id)) {
+          playlist.accountIds.push(account.id)
           let videos = await entityManager.query(Video, {
             channelId: knownChannel.id
           })
           for (let video of videos) {
-            video.accountIds.push(account.id)
+            if (!video.accountIds.includes(account.id)) {
+              video.accountIds.push(account.id)
+            }
           }
         }
 
         knownSubscriptions.delete(channel.id)
       }
 
+      // delete subscriptions that were removed from the account
       for (let [channelId, subscription] of knownSubscriptions) {
         let isStillSubscribed = false
         for (let [currentSubscription, currentChannel] of allSubscriptions) {
@@ -96,7 +105,7 @@ export default class SubscriptionsFetcher {
         if (isStillSubscribed) {
           continue
         }
-        
+
         let channel = await entityManager.find(Channel, channelId)
         channel.accountIds = channel.accountIds.filter(
           otherAccountId => otherAccountId !== account.id
