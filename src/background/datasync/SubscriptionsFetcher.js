@@ -100,6 +100,12 @@ export default class SubscriptionsFetcher {
         channel.accountIds = channel.accountIds.filter(
           otherAccountId => otherAccountId !== account.id
         )
+        let shouldDeleteChannel =
+            !channel.accountIds.length &&
+            !channel.incognitoSubscriptionIds.length
+        if (shouldDeleteChannel) {
+          entityManager.remove(Channel, channel.id)
+        }
         let playlist = await entityManager.find(
             Playlist,
             channel.uploadsPlaylistId
@@ -107,6 +113,12 @@ export default class SubscriptionsFetcher {
         playlist.accountIds = playlist.accountIds.filter(
           otherAccountId => otherAccountId !== account.id
         )
+        let shouldDeletePlaylist =
+            !playlist.accountIds.length &&
+            !playlist.incognitoSubscriptionIds.length
+        if (shouldDeletePlaylist) {
+          entityManager.remove(Playlist, playlist.id)
+        }
         let videos = await entityManager.query(Video, {
           channelId: channelId
         })
@@ -114,8 +126,13 @@ export default class SubscriptionsFetcher {
           video.accountIds = video.accountIds.filter(
             otherAccountId => otherAccountId !== account.id
           )
+          let shouldDeleteVideo =
+              !video.accountIds.length &&
+              !video.incognitoSubscriptionIds.length
+          if (shouldDeleteVideo) {
+            entityManager.remove(Video, video.id)
+          }
         }
-        // TODO: delete channels, playlists and videos that are no longer subscribed
       }
     })
   }
