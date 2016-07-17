@@ -96,45 +96,78 @@ export default class SubscriptionsFetcher {
 
       // delete subscriptions that were removed from the account
       for (let [channelId, subscription] of knownSubscriptions) {
-        let channel = await entityManager.find(Channel, channelId)
-        channel.accountIds = channel.accountIds.filter(
-          otherAccountId => otherAccountId !== account.id
+        await this[PRIVATE.deleteUnsubsribedSubscription](
+          entityManager,
+          channelId,
+          subscription
         )
-        let shouldDeleteChannel =
-            !channel.accountIds.length &&
-            !channel.incognitoSubscriptionIds.length
-        if (shouldDeleteChannel) {
-          entityManager.remove(Channel, channel.id)
-        }
-        let playlist = await entityManager.find(
-            Playlist,
-            channel.uploadsPlaylistId
-        )
-        playlist.accountIds = playlist.accountIds.filter(
-          otherAccountId => otherAccountId !== account.id
-        )
-        let shouldDeletePlaylist =
-            !playlist.accountIds.length &&
-            !playlist.incognitoSubscriptionIds.length
-        if (shouldDeletePlaylist) {
-          entityManager.remove(Playlist, playlist.id)
-        }
-        let videos = await entityManager.query(Video, {
-          channelId: channelId
-        })
-        for (let video of videos) {
-          video.accountIds = video.accountIds.filter(
-            otherAccountId => otherAccountId !== account.id
-          )
-          let shouldDeleteVideo =
-              !video.accountIds.length &&
-              !video.incognitoSubscriptionIds.length
-          if (shouldDeleteVideo) {
-            entityManager.remove(Video, video.id)
-          }
-        }
       }
     })
+  }
+
+  /**
+   * Deletes the provided subscription, which the user is no longer subscribed
+   * to.
+   *
+   * The method also updates the account IDs of the subscribed channel, uploads
+   * playlist and videos. If any of those will no longer be subscribed by any
+   * account or incognito subscription, they will be deleted.
+   *
+   * @param entityManager The current entity manager in a transaction used to
+   *        update the subscriptions.
+   * @param channelId The ID of the channel that has been unsubscribed
+   * @param subscriptions The subscription that should be deleted.
+   */
+  async [PRIVATE.deleteUnsubsribedSubscription](
+    entityManager: EntityManager,
+    channelId: string,
+    subscriptions: Subscription
+  ): void {
+    // update and delete (if necessary) the channel
+    let channel = await entityManager.find(Channel, channelId)
+    channel.accountIds = channel.accountIds.filter(
+      otherAccountId => otherAccountId !== account.id
+    )
+    let shouldDeleteChannel =
+        !channel.accountIds.length &&
+        !channel.incognitoSubscriptionIds.length
+    if (shouldDeleteChannel) {
+      entityManager.remove(Channel, channel.id)
+    }
+
+    // update and delete (if necessary) the playlist
+    let playlist = await entityManager.find(
+      Playlist,
+      channel.uploadsPlaylistId
+    )
+    playlist.accountIds = playlist.accountIds.filter(
+      otherAccountId => otherAccountId !== account.id
+    )
+    let shouldDeletePlaylist =
+        !playlist.accountIds.length &&
+        !playlist.incognitoSubscriptionIds.length
+    if (shouldDeletePlaylist) {
+      entityManager.remove(Playlist, playlist.id)
+    }
+
+    // updated and delete (if necessary) the videos
+    let videos = await entityManager.query(Video, {
+      channelId: channelId
+    })
+    for (let video of videos) {
+      video.accountIds = video.accountIds.filter(
+        otherAccountId => otherAccountId !== account.id
+      )
+      let shouldDeleteVideo =
+          !video.accountIds.length &&
+          !video.incognitoSubscriptionIds.length
+      if (shouldDeleteVideo) {
+        entityManager.remove(Video, video.id)
+      }
+    }
+
+    // delete the subscription
+    entityManager.remove(Subscription, subscriptions.id)
   }
 
   /**
