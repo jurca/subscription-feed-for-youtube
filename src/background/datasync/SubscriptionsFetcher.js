@@ -76,20 +76,12 @@ export default class SubscriptionsFetcher {
         }
 
         // update existing subscriptions
-        if (!knownChannel.accountIds.includes(account.id)) {
-          knownChannel.accountIds.push(account.id)
-        }
-        if (!playlist.accountIds.includes(account.id)) {
-          playlist.accountIds.push(account.id)
-          let videos = await entityManager.query(Video, {
-            channelId: knownChannel.id
-          })
-          for (let video of videos) {
-            if (!video.accountIds.includes(account.id)) {
-              video.accountIds.push(account.id)
-            }
-          }
-        }
+        this[PRIVATE.updateKnownSubscription](
+          entityManager,
+          account,
+          channel,
+          playlist
+        )
 
         knownSubscriptions.delete(channel.id)
       }
@@ -103,6 +95,43 @@ export default class SubscriptionsFetcher {
         )
       }
     })
+  }
+
+  /**
+   * Updates, if necessary, the provided channel and its uploads playlist to
+   * which the specified account is subscribed to. The method updates the
+   * account IDs list of the channel and playlist by adding the account's ID if
+   * the account ID is not already present in the lists.
+   *
+   * Updating the account IDs list of the playlist also triggers check&update
+   * of account IDs lists of the videos in the playlist.
+   *
+   * @param entityManager The current entity manager in a transaction used to
+   *        update the subscriptions.
+   * @param account The account that subscribes to the channel.
+   * @param channel The channel the account is subscribed to.
+   * @param playlist The uploads playlist of the subscribed channel.
+   */
+  async [PRIVATE.updateKnownSubscription](entityManager: EntityManager,
+      account: Account, channel: Channel, playlist: Playlist): void {
+    if (!channel.accountIds.includes(account.id)) {
+      channel.accountIds.push(account.id)
+    }
+
+    if (playlist.accountIds.includes(account.id)) {
+      return
+    }
+
+    playlist.accountIds.push(account.id)
+    let videos = await entityManager.query(Video, {
+      channelId: channel.id
+    })
+    for (let video of videos) {
+      // the condition should always hold true, but... just in case ;)
+      if (!video.accountIds.includes(account.id)) {
+        video.accountIds.push(account.id)
+      }
+    }
   }
 
   /**
