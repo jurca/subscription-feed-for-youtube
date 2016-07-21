@@ -37,7 +37,7 @@
     "load-grunt-tasks": "^3.5.0",
     "moment": "^2.13.0",
     "namespace-proxy": "^0.1.1",
-    "sf4yt-gapi-client": "git+http://github.com/jurca/sf4yt-gapi-client.git#0.7.2"
+    "sf4yt-gapi-client": "git+http://github.com/jurca/sf4yt-gapi-client.git#0.8.0"
   },
   "engines": {
     "node": ">=6.2.0",
