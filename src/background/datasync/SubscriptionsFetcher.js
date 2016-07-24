@@ -62,18 +62,10 @@ export default class SubscriptionsFetcher {
           knownSubscription = await entityManager.persist(subscription)
         }
 
-        let knownChannel = await entityManager.find(Channel, channel.id)
-        if (!knownChannel) {
-          knownChannel = await entityManager.persist(channel)
-        }
-        let playlist = await entityManager.find(
-            Playlist,
-            knownChannel.uploadsPlaylistId
+        let {knownChannel, playlist} = await this[PRIVATE.prepareSubscription](
+          entityManager,
+          channel
         )
-        if (!playlist) {
-          playlist = await this[PRIVATE.fetchUploadsPlaylist](channel)
-          playlist = await entityManager.persist(playlist)
-        }
 
         // update existing subscriptions
         this[PRIVATE.updateKnownSubscription](
@@ -95,6 +87,38 @@ export default class SubscriptionsFetcher {
         )
       }
     })
+  }
+
+  /**
+   * Prepares the channel and playlist entities for the subscription to the
+   * specified channel.
+   *
+   * @param entityManager The current entity manager in a transaction used to
+   *        update the subscriptions.
+   * @param channel The entity representing the channel for which the
+   *        subscription is being prepared.
+   * @return The channel entity representing the provided channel within this
+   *         extension's database.
+   */
+  async [PRIVATE.prepareSubscription](entityManager: EntityManager,
+      channel: Channel): {knownChannel: Channel, playlist: Playlist} {
+    let knownChannel = await entityManager.find(Channel, channel.id)
+    if (!knownChannel) {
+      knownChannel = await entityManager.persist(channel)
+    }
+    let playlist = await entityManager.find(
+        Playlist,
+        knownChannel.uploadsPlaylistId
+    )
+    if (!playlist) {
+      playlist = await this[PRIVATE.fetchUploadsPlaylist](channel)
+      playlist = await entityManager.persist(playlist)
+    }
+
+    return {
+      knownChannel,
+      playlist
+    }
   }
 
   /**
