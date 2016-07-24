@@ -38,6 +38,12 @@ export default class SubscriptionsFetcher {
     PRIVATE(this).clientFactory = clientFactory
   }
 
+  /**
+   * Updates the subscriptions, subscribed channels and their uploads playlists
+   * of the of the provided account.
+   *
+   * @param account The user's Google account.
+   */
   async updateSubscriptions(account: Account): void {
     if (!account.channelId) {
       throw new Error("Cannot read the subscription of a foreign account, " +
@@ -56,23 +62,10 @@ export default class SubscriptionsFetcher {
       )
 
       for (let [subscription, channel] of allSubscriptions) {
-        // save new subscriptions
-        let knownSubscription = knownSubscriptions.get(channel.id)
-        if (!knownSubscription) {
-          knownSubscription = await entityManager.persist(subscription)
-        }
-
-        let {knownChannel, playlist} = await this[PRIVATE.prepareSubscription](
+        await this[PRIVATE.processSubscription](
           entityManager,
+          subscription,
           channel
-        )
-
-        // update existing subscriptions
-        this[PRIVATE.updateKnownSubscription](
-          entityManager,
-          account,
-          channel,
-          playlist
         )
 
         knownSubscriptions.delete(channel.id)
@@ -87,6 +80,40 @@ export default class SubscriptionsFetcher {
         )
       }
     })
+  }
+
+  /**
+   * Processes the provided subscription, adding it to the subscriptions in the
+   * database if not already present, and checking, updating and saving the
+   * related channel and uploads playlist.
+   *
+   * @param entityManager The current entity manager in a transaction used to
+   *        update the subscriptions.
+   * @param knownSubscriptions A map of channel IDs to subscriptions to the
+   *        channels.
+   * @param subscription The subscription to the channel.
+   * @param channel The channel to which the user is subscribed.
+   */
+  async [PRIVATE.processSubscription](entityManager: EntityManager,
+      knownSubscriptions: Map<string, Subscription>,
+      subscription: Subscription, channel: Channel): void {
+    // save new subscriptions
+    if (!knownSubscriptions.has(channel.id)) {
+      await entityManager.persist(subscription)
+    }
+
+    let {knownChannel, playlist} = await this[PRIVATE.prepareSubscription](
+      entityManager,
+      channel
+    )
+
+    // update existing subscriptions
+    this[PRIVATE.updateKnownSubscription](
+      entityManager,
+      account,
+      knownChannel,
+      playlist
+    )
   }
 
   /**
