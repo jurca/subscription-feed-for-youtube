@@ -13,6 +13,7 @@ import SyncStorage from "./storage/SyncStorage"
 import AccountsSynchronizer from "./storage/synchronization/AccountsSynchronizer"
 import IncognitoSubscriptionsSynchronizer from "./storage/synchronization/IncognitoSubscriptionsSynchronizer"
 
+import RequestPreProcessor from "./youtube-api/RequestPreProcessor"
 import ClientFactory from "./youtube-api/ClientFactory"
 
 let di = new DependencyInjector()
@@ -20,6 +21,7 @@ let di = new DependencyInjector()
 // configure the dependencies
 di.configure(PortReceiver, config.portConnectionTimeout)
 
+di.configure(RequestPreProcessor, config.api.referrer)
 di.configure(ClientFactory, config.api.key, config.api.requestTimeout)
 
 di.configure(SyncStorage, EventBus)
@@ -31,7 +33,9 @@ di.configure(AccountsHandler, Database, PortReceiver, SyncStorage, EventBus)
 di.configure(RequestHandler, AccountsHandler)
 
 // initialize the application
+let apiRequestPreProcessor = di.get(RequestPreProcessor)
 di.get(IncognitoSubscriptionsSynchronizer)
 di.get(AccountsSynchronizer)
 let requestHandler = di.get(RequestHandler)
+apiRequestPreProcessor.start()
 requestHandler.start()
