@@ -56,30 +56,45 @@ export default class SubscriptionsFetcher {
 
     let entityManager = PRIVATE(this).database.createEntityManager()
     entityManager.runTransaction(async () => {
-      let knownSubscriptions = await this[PRIVATE.fetchSubscriptions](
+      await this[PRIVATE.processSubscriptions](entityManager, allSubscriptions)
+    })
+  }
+
+  /**
+   * Processes all the provided subscriptions of the user's account, storing
+   * the new, updating the existing and deleting the removed subscriptions from
+   * the local database.
+   *
+   * @param entityManager The current entity manager in a transaction used to
+   *        update the subscriptions.
+   * @param allSubscriptions All current subscriptions of the user's Google
+   *        account, freshly fetched from the YouTube's data API.
+   */
+  async [PRIVATE.processSubscriptions](entityManager: EntityManager,
+      allSubscriptions: Array<[Subscription, Channel]>): void {
+    let knownSubscriptions = await this[PRIVATE.fetchSubscriptions](
+      entityManager,
+      account
+    )
+
+    for (let [subscription, channel] of allSubscriptions) {
+      await this[PRIVATE.processSubscription](
         entityManager,
-        account
+        subscription,
+        channel
       )
 
-      for (let [subscription, channel] of allSubscriptions) {
-        await this[PRIVATE.processSubscription](
-          entityManager,
-          subscription,
-          channel
-        )
+      knownSubscriptions.delete(channel.id)
+    }
 
-        knownSubscriptions.delete(channel.id)
-      }
-
-      // delete subscriptions that were removed from the account
-      for (let [channelId, subscription] of knownSubscriptions) {
-        await this[PRIVATE.deleteUnsubsribedSubscription](
-          entityManager,
-          channelId,
-          subscription
-        )
-      }
-    })
+    // delete subscriptions that were removed from the account
+    for (let [channelId, subscription] of knownSubscriptions) {
+      await this[PRIVATE.deleteUnsubsribedSubscription](
+        entityManager,
+        channelId,
+        subscription
+      )
+    }
   }
 
   /**
