@@ -60,6 +60,38 @@ export default class Cron {
    */
   schedule(task: () => void, period: number, delay: number,
       ...eventBusEvents: Array<string>): void {
-    // TODO
+    let taskDescriptor = {
+      task,
+      period,
+      delay,
+      eventBusEvents,
+      lastExecution: 0
+    }
+    PRIVATE(this).tasks.push(taskDescriptor)
+
+    for (let eventName of eventBusEvents) {
+      PRIVATE(this).eventBus.addListener(
+        eventName,
+        this[PRIVATE.executeTask].bind(this, taskDescriptor)
+      )
+    }
+
+    // TODO - set up the alarms
+  }
+
+  [PRIVATE.executeTask](
+    taskDescriptor: {task: () => void, lastExecution: number}
+  ): void {
+    let executionStart = Date.now()
+    try {
+      taskDescriptor.task()
+    } catch (error) {
+      console.error(
+        "Encountered an error during the execution of a task",
+        error
+      )
+    }
+    taskDescriptor.lastExecution = executionStart
+    // TODO - set up the alarms for next execution
   }
 }
