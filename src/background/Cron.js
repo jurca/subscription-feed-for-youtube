@@ -4,9 +4,6 @@ import EventBus from "../EventBus"
 
 const PRIVATE = createPrivate()
 
-// TODO: use the alarms API so that the background page may be converted to an
-// event page one day
-
 /**
  * Utility for automatic periodical and event-triggered execution of tasks.
  */
@@ -33,6 +30,7 @@ export default class Cron {
      * execution has been started, specified with millisecond-precision.
      *
      * @type {{
+     *         alarmId: string,
      *         task: function(),
      *         period: number,
      *         delay: number,
@@ -41,6 +39,20 @@ export default class Cron {
      *       }[]}
      */
     PRIVATE(this).tasks = []
+
+    PRIVATE(this).getNextAlarmId = (() => {
+      const initializationTimestamp = Date.now().toString(36)
+      let id = 0
+      return () => `Cron:${initializationTimestamp}:${++id}`
+    })()
+
+    chrome.alarms.onAlarm.addListener((alarm: {name: string}) => {
+      for (let taskDescriptor of PRIVATE(this).tasks) {
+        if (taskDescriptor.alarmId === alarm.name) {
+          this[PRIVATE.executeTask](taskDescriptor)
+        }
+      }
+    })
 
     Object.freeze(this)
   }
@@ -61,6 +73,7 @@ export default class Cron {
   schedule(task: () => void, period: number, delay: number,
       ...eventBusEvents: Array<string>): void {
     let taskDescriptor = {
+      alarmId: "",
       task,
       period,
       delay,
@@ -76,13 +89,20 @@ export default class Cron {
       )
     }
 
-    // TODO - set up the alarms
+    this[PRIVATE.setUpTaskAlarms](taskDescriptor)
   }
 
   [PRIVATE.executeTask](
-    taskDescriptor: {task: () => void, lastExecution: number}
+    taskDescriptor: {
+      alarmId: string,
+      task: () => void,
+      period: number,
+      delay: number,
+      lastExecution: number
+    }
   ): void {
     let executionStart = Date.now()
+    chrome.alarms.clear(taskDescriptor.alarmId) // no need to wait
     try {
       taskDescriptor.task()
     } catch (error) {
@@ -92,6 +112,17 @@ export default class Cron {
       )
     }
     taskDescriptor.lastExecution = executionStart
-    // TODO - set up the alarms for next execution
+
+    this[PRIVATE.setUpTaskAlarms](taskDescriptor)
+  }
+
+  [PRIVATE.setUpTaskAlarms](
+    taskDescriptor: {alarmId: string, period: number, delay: number},
+    isFirstRegistration: boolean = false
+  ): void {
+    taskDescriptor.alarmId = PRIVATE(this).getNextAlarmId
+    chrome.alarms.create(taskDescriptor.alarmId, {
+      delayInMinutes: (isFirstRegistration ? delay : period) / (60 * 1000)
+    })
   }
 }
