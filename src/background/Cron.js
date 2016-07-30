@@ -40,6 +40,12 @@ export default class Cron {
      */
     PRIVATE(this).tasks = []
 
+    /**
+     * Generator of unique alarm names for the scheduled tasks so that the
+     * tasks can be easily identified when an alarm occurs.
+     *
+     * @type {function(): string}
+     */
     PRIVATE(this).getNextAlarmId = (() => {
       const initializationTimestamp = Date.now().toString(36)
       let id = 0
@@ -50,6 +56,7 @@ export default class Cron {
       for (let taskDescriptor of PRIVATE(this).tasks) {
         if (taskDescriptor.alarmId === alarm.name) {
           this[PRIVATE.executeTask](taskDescriptor)
+          break
         }
       }
     })
@@ -65,13 +72,26 @@ export default class Cron {
    * The task will be then re-executed after the specified period or with the
    * occurrence of any of the specified events, whichever comes first.
    *
-   * @param task
-   * @param period
+   * @param task The task to execute periodically or when any of the specified
+   *        events occur on the event bus.
+   * @param period The time period, in milliseconds, between repeated
+   *        executions of the task.
    * @param delay
    * @param eventBusEvents
    */
   schedule(task: () => void, period: number, delay: number,
       ...eventBusEvents: Array<string>): void {
+    if ((Math.floor(period) !== period) || (period <= 0)) {
+      throw new TypeError(
+        `The period must be a positive integer, ${period} has been provided`
+      )
+    }
+    if ((Math.floor(delay) !== delay) || (delay <= 0)) {
+      throw new TypeError(
+        `The delay must be a positive integer, ${delay} has been provided`
+      )
+    }
+
     let taskDescriptor = {
       alarmId: "",
       task,
@@ -89,9 +109,18 @@ export default class Cron {
       )
     }
 
-    this[PRIVATE.setUpTaskAlarms](taskDescriptor)
+    this[PRIVATE.setUpTaskAlarms](taskDescriptor, true)
   }
 
+  /**
+   * Executes the specified task. The method also cancels the task's current
+   * alarm for scheduled execution (in order to prevent collisions with
+   * executions triggered by the event bus), updated the last execution
+   * timestamp of the task and schedules the next automatic execution of the
+   * task.
+   *
+   * @param taskDescriptor Descriptor of the task to execute.
+   */
   [PRIVATE.executeTask](
     taskDescriptor: {
       alarmId: string,
@@ -116,6 +145,16 @@ export default class Cron {
     this[PRIVATE.setUpTaskAlarms](taskDescriptor)
   }
 
+  /**
+   * Sets up the alarm(s) for the next automatic execution of the specified
+   * task.
+   *
+   * @param taskDescriptor Descriptor of the task to schedule for execution.
+   * @param isFirstRegistration Flag signalling whether this is the first time
+   *        the task is being scheduled for execution. When set, the method
+   *        will use the {@code delay} property instead of the {@code period}
+   *        property to set the delay before the alarm is triggered.
+   */
   [PRIVATE.setUpTaskAlarms](
     taskDescriptor: {alarmId: string, period: number, delay: number},
     isFirstRegistration: boolean = false
