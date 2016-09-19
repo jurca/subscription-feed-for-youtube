@@ -33,6 +33,7 @@
     "grunt-contrib-watch": "^1.0.0",
     "idb-entity": "^0.1.2",
     "indexed-db.es6": "^0.5.4",
+    "js-lock": "^0.1.1",
     "jurca-di": "^0.2.0",
     "load-grunt-tasks": "^3.5.0",
     "moment": "^2.13.0",

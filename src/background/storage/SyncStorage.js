@@ -1,7 +1,7 @@
 
 import createPrivate from "namespace-proxy"
 import EventBus from "../../EventBus"
-import Lock from "../../Lock"
+import Lock from "js-lock"
 import SubscriptionType from "../../model/SubscriptionType"
 
 // TODO: add settings
