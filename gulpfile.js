@@ -8,14 +8,14 @@ const source = require('vinyl-source-stream')
 
 exports.default = gulp.series(
   compile,
-  bundle
+  bundle,
+  fixAsync
 )
 
 function compile() {
   return gulp
       .src('./src/**/*.js')
-      .pipe(babel())
-      /*.pipe(change((content) => {
+      .pipe(change((content) => {
         let result = ''
         let withinComment = false
         for (let i = 0; i < content.length; i++) {
@@ -37,8 +37,8 @@ function compile() {
               }
               break
             case 'a':
-              if (['sync', 'wait'].includes(content.substring(i + 1, i + 5))) {
-                result += `/*a${content.substring(i + 1, i + 5)}*//*`
+              if (['sync ', 'wait '].includes(content.substring(i + 1, i + 6))) {
+                result += `/*a${content.substring(i + 1, i + 5)}*/`
                 i += 4
                 continue
               }
@@ -47,14 +47,12 @@ function compile() {
           result += char
         }
         return result
-        return content
-            .replace(/async /g, '/*async *//*')
-            .replace(/await /g, '/*await *//*')
-      }))*/
+      }))
+      .pipe(babel())
       .pipe(gulp.dest('./tmp'))
 }
 
-function bundle() {
+function bundle(done) {
   const FILES = [
     { in: 'tmp/background/bootstrap.js', out: 'background.js' },
     { in: 'tmp/options/bootstrap.js', out: 'options.js' }
@@ -73,5 +71,16 @@ function bundle() {
     )
   }
 
-  return gulp.parallel(...subTasks)()
+  gulp.series(
+    gulp.parallel(...subTasks),
+    (done2) => { done(); done2() }
+  )()
+}
+
+function fixAsync() {
+  return gulp.src('./dist/*.js')
+      .pipe(change((content) => {
+        return content.replace(/\/\*a(sync|wait)\*\//g, 'a$1 ')
+      }))
+      .pipe(gulp.dest('./dist'))
 }
