@@ -31,6 +31,9 @@
     "grunt": "1.0.1",
     "grunt-browserify": "5.0.0",
     "grunt-contrib-watch": "1.0.0",
+    "gulp": "github:gulpjs/gulp#e9e5ab7",
+    "gulp-babel": "6.1.2",
+    "gulp-change": "1.0.0",
     "idb-entity": "0.1.2",
     "indexed-db.es6": "0.5.4",
     "js-lock": "0.1.1",
@@ -38,7 +41,8 @@
     "load-grunt-tasks": "3.5.2",
     "moment": "2.17.1",
     "namespace-proxy": "0.1.1",
-    "sf4yt-gapi-client": "github:jurca/sf4yt-gapi-client#0.8.0"
+    "sf4yt-gapi-client": "github:jurca/sf4yt-gapi-client#0.8.0",
+    "vinyl-source-stream": "1.1.0"
   },
   "engines": {
     "node": ">=6.9.2",
