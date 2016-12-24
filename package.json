@@ -3,6 +3,9 @@
   "version": "2.0.0",
   "description": "Google Chrome extension for monitoring YouTube channels for new videos.",
   "private": true,
+  "scripts": {
+    "build": "node ./node_modules/gulp/bin/gulp.js"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/jurca/subscription-feed-for-youtube.git"
@@ -28,9 +31,6 @@
     "babel-plugin-transform-flow-strip-types": "6.18.0",
     "babelify": "7.3.0",
     "browserify": "13.1.1",
-    "grunt": "1.0.1",
-    "grunt-browserify": "5.0.0",
-    "grunt-contrib-watch": "1.0.0",
     "gulp": "github:gulpjs/gulp#e9e5ab7",
     "gulp-babel": "6.1.2",
     "gulp-change": "1.0.0",
@@ -38,7 +38,6 @@
     "indexed-db.es6": "0.5.4",
     "js-lock": "0.1.1",
     "jurca-di": "0.2.0",
-    "load-grunt-tasks": "3.5.2",
     "moment": "2.17.1",
     "namespace-proxy": "0.1.1",
     "sf4yt-gapi-client": "github:jurca/sf4yt-gapi-client#0.8.0",
